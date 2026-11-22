@@ -3,210 +3,383 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuantenBeatz — Free Royalty-Free Electronic &amp; Techno Music (CC BY 4.0)</title>
-  <meta name="description" content="Free electronic, dark techno and cinematic background tracks for YouTube, Shorts, Reels and Streams. Direct MP3 &amp; WAV downloads, Content ID free (CC BY 4.0).">
+  <title>QUANTENBEATZ — Orbital Free Sound Library (CC BY 4.0)</title>
+  <meta name="description" content="Futuristic monochrome sound library. Royalty-free electronic & techno music for YouTube, Shorts, Reels & Streams. Direct MP3 & WAV downloads, Content ID free (CC BY 4.0).">
   <style>
     :root {
       --bg: #000000;
-      --bg-card: #0a0a0c;
-      --border: rgba(255, 255, 255, 0.14);
-      --border-hover: rgba(255, 255, 255, 0.48);
-      --text: #ffffff;
-      --muted: #a1a1aa;
-      --cyan: #ffffff;
-      --gold: #d4d4d8;
+      --fg: #ffffff;
+      --fg-dim: rgba(255, 255, 255, 0.52);
+      --fg-faint: rgba(255, 255, 255, 0.24);
+      --line: rgba(255, 255, 255, 0.14);
+      --line-strong: rgba(255, 255, 255, 0.42);
+      --glass: rgba(8, 8, 10, 0.72);
       --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
       --sans: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(900px 480px at 50% -10%, rgba(255, 255, 255, 0.08), transparent 70%),
-        var(--bg);
-      line-height: 1.5;
-    }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 72px; }
-    header {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--border);
-    }
-    .brand-tag {
-      font-family: var(--mono); font-size: 12px; letter-spacing: 3px;
-      color: var(--cyan); text-transform: uppercase;
-    }
-    h1 { margin: 6px 0 4px; font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.5px; }
-    .subtitle { margin: 0; color: var(--muted); font-size: 15px; max-width: 600px; }
-    .lang-switch {
-      display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
-      background: rgba(12, 18, 32, 0.8); overflow: hidden;
-    }
-    .lang-switch button {
-      border: 0; background: transparent; color: var(--muted); padding: 7px 14px;
-      font-family: var(--mono); font-size: 12px; cursor: pointer; transition: .15s;
-    }
-    .lang-switch button.active { background: var(--cyan); color: #04101d; font-weight: 700; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-    .controls {
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-      margin: 24px 0 20px;
+    /* Fullscreen living Quantum Canvas */
+    #space {
+      position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
     }
-    .search {
-      flex: 1 1 240px; padding: 11px 14px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--bg-card); color: var(--text);
-      font-size: 14px; outline: none;
+
+    /* Precision Corner Reticles (matches 1440p Visualizer) */
+    .corner { position: fixed; width: 18px; height: 18px; z-index: 2; pointer-events: none; opacity: 0.35; }
+    .c-tl { top: 20px; left: 20px; border-top: 1px solid #fff; border-left: 1px solid #fff; }
+    .c-tr { top: 20px; right: 20px; border-top: 1px solid #fff; border-right: 1px solid #fff; }
+    .c-bl { bottom: 20px; left: 20px; border-bottom: 1px solid #fff; border-left: 1px solid #fff; }
+    .c-br { bottom: 20px; right: 20px; border-bottom: 1px solid #fff; border-right: 1px solid #fff; }
+
+    .shell {
+      position: relative; z-index: 3; min-height: 100vh;
+      max-width: 1120px; margin: 0 auto; padding: 28px 28px 96px;
+      display: flex; flex-direction: column;
     }
-    .search:focus { border-color: var(--cyan); }
-    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* Top Minimal HUD */
+    .hud {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding-bottom: 18px; border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--fg); }
+    .brand img { height: 34px; width: auto; mix-blend-mode: screen; }
+    .brand-name { font-family: var(--mono); font-size: 12px; letter-spacing: 5px; font-weight: 600; }
+    .brand-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 2.5px; color: var(--fg-dim); display: block; margin-top: 2px; }
+
+    .hud-right { display: flex; align-items: center; gap: 10px; }
+    .hud-btn {
+      background: transparent; border: 1px solid var(--line); color: var(--fg-dim);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase;
+      padding: 7px 12px; border-radius: 999px; cursor: pointer; transition: .2s;
+    }
+    .hud-btn:hover, .hud-btn.active { color: var(--fg); border-color: var(--fg); background: rgba(255,255,255,0.06); }
+
+    /* Expandable Search Drawer (appears only when needed) */
+    .drawer {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height .32s cubic-bezier(.22,1,.36,1), opacity .25s ease, margin .25s ease;
+    }
+    .drawer.open { max-height: 160px; opacity: 1; margin-top: 18px; }
+    .drawer-inner {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px;
+      background: var(--glass); backdrop-filter: blur(14px);
+    }
+    .search-input {
+      flex: 1 1 220px; background: transparent; border: 0; border-bottom: 1px solid var(--line);
+      color: var(--fg); font-family: var(--mono); font-size: 13px; padding: 6px 4px; outline: none;
+    }
+    .search-input:focus { border-bottom-color: var(--fg); }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
     .pill {
-      border: 1px solid var(--border); background: transparent; color: var(--muted);
-      padding: 7px 13px; border-radius: 999px; font-size: 12px; font-family: var(--mono);
-      cursor: pointer; transition: .15s;
+      background: transparent; border: 1px solid var(--line); color: var(--fg-dim);
+      font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: .18s;
     }
-    .pill.active, .pill:hover { border-color: var(--cyan); color: var(--text); background: rgba(255, 255, 255, 0.12); }
+    .pill.active, .pill:hover { background: #fff; color: #000; border-color: #fff; }
 
-    .grid { display: grid; gap: 16px; }
-    .card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 20px; transition: border-color .2s;
+    /* Central Quantum Stage */
+    .stage {
+      flex: 1; display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px;
+      align-items: center; padding: 38px 0 24px;
     }
-    .card:hover { border-color: var(--border-hover); }
-    .card-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .track-title { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.4px; }
-    .track-artist { margin: 2px 0 0; font-size: 12px; color: var(--muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
-    .badges { display: flex; flex-wrap: wrap; gap: 6px; }
-    .badge {
-      font-family: var(--mono); font-size: 11px; padding: 4px 9px; border-radius: 6px;
-      background: rgba(255, 255, 255, 0.06); color: #e4e4e7; border: 1px solid rgba(255, 255, 255, 0.18);
+    @media (max-width: 860px) {
+      .stage { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
     }
-    .badge.safe { background: rgba(255, 255, 255, 0.12); color: #ffffff; border-color: rgba(255, 255, 255, 0.35); }
-    .mood { margin: 10px 0 14px; font-size: 13px; color: var(--muted); }
-    audio { width: 100%; height: 40px; border-radius: 8px; margin-bottom: 14px; filter: invert(0.95) grayscale(1); }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .btn {
+
+    /* Left: Interactive Quantum Orb + Active Track Deck */
+    .orb-zone { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .orb-wrap {
+      position: relative; width: min(360px, 78vw); height: min(360px, 78vw);
+      display: grid; place-items: center; cursor: pointer; user-select: none;
+    }
+    #orbCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .orb-core {
+      position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px;
+      transition: transform .25s ease;
+    }
+    .orb-wrap:hover .orb-core { transform: scale(1.04); }
+    .orb-core img { width: 92px; height: auto; mix-blend-mode: screen; pointer-events: none; }
+    .orb-state {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 3.5px; color: var(--fg-dim);
+      text-transform: uppercase;
+    }
+
+    /* Active Deck (slides cleanly into focus when a track is selected) */
+    .deck {
+      width: 100%; max-width: 460px; margin-top: 12px;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity .35s ease, transform .35s cubic-bezier(.22,1,.36,1);
+    }
+    .deck.ready { opacity: 1; transform: translateY(0); }
+    .deck-title { margin: 0; font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .deck-meta {
+      margin: 6px 0 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+      color: var(--fg-dim); text-transform: uppercase;
+    }
+    .deck-mood { margin: 0 0 18px; font-size: 13px; color: var(--fg-dim); }
+
+    /* Custom Minimalist Scrubber (No ugly native browser audio bar) */
+    .scrub-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .play-circle {
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid #fff;
+      background: #fff; color: #000; display: grid; place-items: center;
+      font-size: 13px; cursor: pointer; flex: 0 0 auto; transition: .18s;
+    }
+    .play-circle:hover { transform: scale(1.07); }
+    .scrub-track {
+      flex: 1; height: 22px; display: flex; align-items: center; cursor: pointer; position: relative;
+    }
+    .scrub-bg { width: 100%; height: 2px; background: var(--line); position: relative; }
+    .scrub-fill { height: 100%; width: 0%; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+    .time-txt { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); min-width: 78px; text-align: right; }
+
+    .deck-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .act {
       display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-      padding: 9px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
-      border: 1px solid var(--border); color: var(--text); background: rgba(255, 255, 255, 0.03);
-      cursor: pointer; transition: .15s;
+      padding: 8px 14px; border-radius: 999px; font-family: var(--mono); font-size: 11px;
+      letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; transition: .18s;
+      border: 1px solid var(--line); color: var(--fg); background: transparent;
     }
-    .btn:hover { border-color: #ffffff; background: rgba(255, 255, 255, 0.12); }
-    .btn.primary { background: #ffffff; color: #000000; border-color: #ffffff; }
-    .btn.primary:hover { filter: brightness(0.9); }
-    .btn.copied { background: #ffffff; border-color: #ffffff; color: #000000; }
-    .btn.disabled { opacity: 0.45; pointer-events: none; }
+    .act:hover { border-color: #fff; background: rgba(255,255,255,0.09); }
+    .act.solid { background: #fff; color: #000; border-color: #fff; font-weight: 700; }
+    .act.solid:hover { opacity: 0.86; }
+    .act.done { background: #fff; color: #000; border-color: #fff; }
 
-    .license-box {
-      margin-top: 36px; padding: 18px 20px; border-radius: 14px;
-      border: 1px solid var(--border); background: rgba(12, 18, 32, 0.6);
-      font-size: 13px; color: var(--muted);
+    /* Right: Futuristic Quantum Index (Clean, Airy, Progressive) */
+    .index-col { display: flex; flex-direction: column; }
+    .index-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; color: var(--fg-dim); text-transform: uppercase;
     }
-    .license-box strong { color: var(--text); }
+    .track-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .track-row {
+      display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 14px;
+      padding: 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer; transition: background .2s, padding-left .22s cubic-bezier(.22,1,.36,1), border-color .2s;
+      position: relative;
+    }
+    .track-row:hover { background: rgba(255,255,255,0.04); padding-left: 20px; }
+    .track-row.active {
+      background: rgba(255,255,255,0.08); border-bottom-color: rgba(255,255,255,0.38); padding-left: 22px;
+    }
+    .track-row.active::before {
+      content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: 2px;
+      background: #fff; box-shadow: 0 0 12px #fff;
+    }
+    .row-num { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); letter-spacing: 1px; }
+    .row-title { font-size: 16px; font-weight: 600; letter-spacing: 0.5px; }
+    .row-sub { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); margin-top: 3px; letter-spacing: 1px; }
+    .row-bpm { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); letter-spacing: 1.5px; text-align: right; }
+    .track-row.active .row-num, .track-row.active .row-bpm { color: #fff; }
+
+    /* Minimal Footer */
     footer {
-      margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted);
-      font-family: var(--mono);
+      margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line);
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 1.8px; color: var(--fg-dim);
     }
-    footer a { color: var(--cyan); text-decoration: none; }
+    footer a, footer button {
+      color: var(--fg-dim); text-decoration: none; background: none; border: 0; padding: 0;
+      font: inherit; letter-spacing: inherit; cursor: pointer; transition: color .18s;
+    }
+    footer a:hover, footer button:hover { color: #fff; }
+    .foot-links { display: flex; flex-wrap: wrap; gap: 18px; }
+
+    /* License Modal (only appears on click) */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.82); backdrop-filter: blur(12px);
+      display: grid; place-items: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      max-width: 540px; width: 100%; background: #070709; border: 1px solid var(--line-strong);
+      border-radius: 18px; padding: 28px; position: relative;
+    }
+    .modal h2 { margin: 0 0 10px; font-family: var(--mono); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
+    .modal p { margin: 0 0 14px; font-size: 14px; color: var(--fg-dim); line-height: 1.65; }
+    .modal-close {
+      position: absolute; top: 18px; right: 18px; background: transparent; border: 1px solid var(--line);
+      color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-family: var(--mono);
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
-        <img src="qb-logo.png" alt="QuantenBeatz Logo" style="height:68px;width:auto;mix-blend-mode:screen;border-radius:8px;">
+  <canvas id="space"></canvas>
+  <div class="corner c-tl"></div><div class="corner c-tr"></div>
+  <div class="corner c-bl"></div><div class="corner c-br"></div>
+
+  <div class="shell">
+    <header class="hud">
+      <a class="brand" href="#">
+        <img src="qb-logo.png" alt="QuantenBeatz">
         <div>
-          <div class="brand-tag">QUANTENBEATZ // FREE SOUND LIBRARY</div>
-          <h1 data-i18n="title">Free Electronic &amp; Techno Music</h1>
-          <p class="subtitle" data-i18n="subtitle">
-            Royalty-free background tracks for YouTube, Shorts, Reels &amp; Streams. Direct MP3 &amp; WAV downloads, no ads, Content ID free (CC BY 4.0).
-          </p>
+          <span class="brand-name">QUANTENBEATZ</span>
+          <span class="brand-sub" data-i18n="tagline">FREE SOUND LIBRARY · CC BY 4.0</span>
         </div>
-      </div>
-      <div class="lang-switch" role="group" aria-label="Language">
-        <button id="btn-en" class="active" type="button">EN</button>
-        <button id="btn-de" type="button">DE</button>
+      </a>
+      <div class="hud-right">
+        <button id="btnFilter" class="hud-btn" type="button" data-i18n="filterBtn">Filter / Search</button>
+        <button id="btnLang" class="hud-btn" type="button">EN / DE</button>
       </div>
     </header>
 
-    <div class="controls">
-      <input id="search" class="search" type="search" placeholder="Search title, genre, mood, BPM...">
-      <div id="pills" class="pills"></div>
+    <div id="drawer" class="drawer">
+      <div class="drawer-inner">
+        <input id="search" class="search-input" type="search" placeholder="Search track, genre, BPM...">
+        <div id="pills" class="pills"></div>
+      </div>
     </div>
 
-    <main id="tracks" class="grid"></main>
+    <main class="stage">
+      <section class="orb-zone">
+        <div class="orb-wrap" id="orbWrap" title="Play / Pause">
+          <canvas id="orbCanvas" width="720" height="720"></canvas>
+          <div class="orb-core">
+            <img src="qb-logo.png" alt="qb">
+            <span class="orb-state" id="orbState">INIT // SELECT</span>
+          </div>
+        </div>
 
-    <section class="license-box">
-      <strong data-i18n="licTitle">License (CC BY 4.0 — Free for Commercial &amp; Non-Commercial Use):</strong>
-      <span data-i18n="licBody">
-        You can use all tracks for free in YouTube videos, Shorts, Reels, TikToks, podcasts and livestreams (including monetized channels). Just paste the short credit into your description using the "Copy Credit" button.
-      </span>
-    </section>
+        <div class="deck" id="deck">
+          <h1 class="deck-title" id="deckTitle">—</h1>
+          <div class="deck-meta" id="deckMeta">—</div>
+          <p class="deck-mood" id="deckMood"></p>
+
+          <div class="scrub-row">
+            <button id="btnPlay" class="play-circle" type="button" aria-label="Play / Pause">▶</button>
+            <div id="scrubTrack" class="scrub-track">
+              <div class="scrub-bg"><div id="scrubFill" class="scrub-fill"></div></div>
+            </div>
+            <div id="timeTxt" class="time-txt">0:00 / 0:00</div>
+          </div>
+
+          <div class="deck-actions">
+            <a id="dlMp3" class="act solid" href="#" download>MP3 320K</a>
+            <a id="dlWav" class="act" href="#" download>WAV</a>
+            <button id="btnCredit" class="act" type="button" data-i18n="copyCredit">Copy Credit</button>
+            <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="index-col">
+        <div class="index-head">
+          <span data-i18n="indexLabel">SIGNAL ARCHIVE</span>
+          <span id="trackCount">00 TRACKS</span>
+        </div>
+        <ul id="trackList" class="track-list"></ul>
+      </section>
+    </main>
 
     <footer>
-      <a href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube @quantenbeatz</a>
-      &nbsp;·&nbsp;
-      <a href="https://www.mixcloud.com/quantenbeatz/" target="_blank" rel="noopener">Mixcloud (Long Mixes)</a>
-      &nbsp;·&nbsp;
-      <a href="https://stevennoack.de/werkzeuge" target="_blank" rel="noopener">stevennoack.de</a>
+      <div class="foot-links">
+        <a href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YOUTUBE @QUANTENBEATZ</a>
+        <a href="https://www.mixcloud.com/quantenbeatz/" target="_blank" rel="noopener">MIXCLOUD</a>
+        <button id="btnLic" type="button" data-i18n="licLink">LICENSE · CC BY 4.0</button>
+      </div>
+      <div>NO CONTENT ID · MONETIZATION SAFE</div>
     </footer>
   </div>
+
+  <div id="modalBg" class="modal-bg" role="dialog" aria-modal="true">
+    <div class="modal">
+      <button id="modalClose" class="modal-close" type="button">×</button>
+      <h2 data-i18n="licTitle">CC BY 4.0 · FREE FOR CREATORS</h2>
+      <p data-i18n="licP1">Every track in this archive is free for commercial and non-commercial use on YouTube, Shorts, Reels, TikTok, podcasts and livestreams — with zero Content ID claims.</p>
+      <p data-i18n="licP2">Simply click "Copy Credit" on any track and paste the attribution line into your video description. High-resolution MP3 (320k) and lossless WAV files download directly with zero ads.</p>
+    </div>
+  </div>
+
+  <audio id="player" crossorigin="anonymous" preload="metadata"></audio>
 
   <script>
     const I18N = {
       en: {
-        title: "Free Electronic & Techno Music",
-        subtitle: "Royalty-free background tracks for YouTube, Shorts, Reels & Streams. Direct MP3 & WAV downloads, no ads, Content ID free (CC BY 4.0).",
-        search: "Search title, genre, mood, BPM...",
+        tagline: "FREE SOUND LIBRARY · CC BY 4.0",
+        filterBtn: "Filter / Search",
+        search: "Search track, genre, BPM...",
         all: "All",
-        dlMp3: "Download MP3",
-        dlWav: "Download WAV",
-        copyCredit: "Copy Credit (CC BY)",
-        copied: "Credit copied!",
-        yt: "YouTube",
-        comingSoon: "Release coming soon",
-        contentId: "No Content ID",
-        licTitle: "License (CC BY 4.0 — Free for Monetization): ",
-        licBody: "Use all tracks for free in YouTube videos, Shorts, Reels, TikToks, podcasts and streams. Just paste the short credit into your description.",
-        empty: "No matching tracks found.",
-        creditTpl: (t) => `Music: "${t.title}" by ${t.artist} (QuantenBeatz)\nFree Download & License (CC BY 4.0): ${t.release_url || location.href}`
+        copyCredit: "Copy Credit",
+        copied: "Copied ✓",
+        indexLabel: "SIGNAL ARCHIVE",
+        tracks: "TRACKS",
+        licLink: "LICENSE · CC BY 4.0",
+        licTitle: "CC BY 4.0 · FREE FOR CREATORS",
+        licP1: "Every track in this archive is free for commercial and non-commercial use on YouTube, Shorts, Reels, TikTok, podcasts and livestreams — with zero Content ID claims.",
+        licP2: "Simply click \"Copy Credit\" on any track and paste the attribution line into your video description. Direct MP3 (320k) and lossless WAV downloads with zero ads.",
+        playing: "ACTIVE // LIVE",
+        paused: "STANDBY // PLAY",
+        creditTpl: (t) => `Music: "${t.title}" by ${t.artist}\nFree Download (MP3 & WAV, CC BY 4.0): https://macstenk.github.io/quantenbeatz/`
       },
       de: {
-        title: "Lizenzfreie Elektronik- & Techno-Musik",
-        subtitle: "Kostenlose Hintergrundtracks für YouTube, Shorts, Reels & Streams. Direkter MP3- & WAV-Download ohne Werbung, kein Content ID (CC BY 4.0).",
-        search: "Titel, Genre, Stimmung oder BPM suchen...",
+        tagline: "LIZENZFREIE SOUNDBIBLIOTHEK · CC BY 4.0",
+        filterBtn: "Filter / Suche",
+        search: "Titel, Genre oder BPM suchen...",
         all: "Alle",
-        dlMp3: "MP3 laden",
-        dlWav: "WAV laden",
-        copyCredit: "Credit kopieren (CC BY)",
-        copied: "Credit kopiert!",
-        yt: "YouTube",
-        comingSoon: "Release folgt",
-        contentId: "Kein Content ID",
-        licTitle: "Lizenz (CC BY 4.0 — Frei für Monetarisierung): ",
-        licBody: "Alle Tracks sind kostenlos nutzbar für YouTube, Shorts, Reels, TikTok, Podcasts und Streams. Einfach den kurzen Credit-Text in deine Videobeschreibung kopieren.",
-        empty: "Keine passenden Tracks gefunden.",
-        creditTpl: (t) => `Musik: „${t.title}“ von ${t.artist} (QuantenBeatz)\nKostenloser Download & Lizenz (CC BY 4.0): ${t.release_url || location.href}`
+        copyCredit: "Credit kopieren",
+        copied: "Kopiert ✓",
+        indexLabel: "SIGNAL-ARCHIV",
+        tracks: "TRACKS",
+        licLink: "LIZENZ · CC BY 4.0",
+        licTitle: "CC BY 4.0 · FREI FÜR CREATOR",
+        licP1: "Jeder Track in diesem Archiv ist kostenlos für YouTube, Shorts, Reels, TikTok, Podcasts und Streams nutzbar — komplett ohne Content-ID-Claims und frei für Monetarisierung.",
+        licP2: "Klick einfach auf „Credit kopieren“ und füge die Zeile in deine Videobeschreibung ein. Direkte MP3- (320k) und WAV-Downloads ohne Werbung.",
+        playing: "AKTIV // LIVE",
+        paused: "BEREIT // PLAY",
+        creditTpl: (t) => `Musik: „${t.title}“ von ${t.artist}\nKostenloser Download (MP3 & WAV, CC BY 4.0): https://macstenk.github.io/quantenbeatz/`
       }
     };
 
     let lang = (navigator.language || "en").toLowerCase().startsWith("de") ? "de" : "en";
     let allTracks = [];
+    let filteredTracks = [];
+    let activeTrack = null;
     let activeGenre = "ALL";
 
-    function setLang(l) {
-      lang = l;
-      document.documentElement.lang = l;
-      document.getElementById("btn-en").classList.toggle("active", l === "en");
-      document.getElementById("btn-de").classList.toggle("active", l === "de");
+    const player = document.getElementById("player");
+    const btnPlay = document.getElementById("btnPlay");
+    const orbState = document.getElementById("orbState");
+    const scrubFill = document.getElementById("scrubFill");
+    const timeTxt = document.getElementById("timeTxt");
+
+    // Web Audio API Live FFT Analyzer
+    let audioCtx = null, analyser = null, freqData = null;
+    function ensureAudioGraph() {
+      if (audioCtx) {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        return;
+      }
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaElementSource(player);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.82;
+      src.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    function fmt(s) {
+      if (!isFinite(s) || s < 0) return "0:00";
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60).toString().padStart(2, "0");
+      return `${m}:${sec}`;
+    }
+
+    function applyLang() {
       const t = I18N[lang];
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        el.textContent = t[el.dataset.i18n];
-      });
+      document.documentElement.lang = lang;
+      document.getElementById("btnLang").textContent = lang === "en" ? "EN · de" : "en · DE";
+      document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t[el.dataset.i18n]; });
       document.getElementById("search").placeholder = t.search;
       renderPills();
-      renderTracks();
+      renderList();
+      if (activeTrack) updateDeck(activeTrack);
     }
 
     function renderPills() {
@@ -218,74 +391,229 @@
         b.type = "button";
         b.className = "pill" + (activeGenre === g ? " active" : "");
         b.textContent = g === "ALL" ? I18N[lang].all : g;
-        b.onclick = () => { activeGenre = g; renderPills(); renderTracks(); };
+        b.onclick = () => { activeGenre = g; renderPills(); renderList(); };
         box.appendChild(b);
       });
     }
 
-    function renderTracks() {
-      const t = I18N[lang];
+    function renderList() {
       const q = document.getElementById("search").value.trim().toLowerCase();
-      const list = allTracks.filter(item => {
+      filteredTracks = allTracks.filter(item => {
         if (activeGenre !== "ALL" && item.genre_tag !== activeGenre) return false;
         if (!q) return true;
-        const hay = `${item.title} ${item.genre} ${item.mood_en} ${item.mood_de} ${item.bpm} ${item.key}`.toLowerCase();
-        return hay.includes(q);
+        return `${item.title} ${item.genre} ${item.bpm} ${item.key} ${item.mood_en} ${item.mood_de}`.toLowerCase().includes(q);
       });
+      document.getElementById("trackCount").textContent =
+        `${String(filteredTracks.length).padStart(2, "0")} ${I18N[lang].tracks}`;
 
-      const root = document.getElementById("tracks");
-      if (!list.length) {
-        root.innerHTML = `<p style="color:var(--muted)">${t.empty}</p>`;
-        return;
-      }
-      root.innerHTML = "";
-      list.forEach(item => {
-        const card = document.createElement("article");
-        card.className = "card";
-        const mood = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
-        const playSrc = item.preview_url || item.mp3_url;
-        const hasAudio = Boolean(playSrc);
-        card.innerHTML = `
-          <div class="card-top">
-            <div>
-              <h2 class="track-title">${item.title}</h2>
-              <div class="track-artist">${item.artist}</div>
-            </div>
-            <div class="badges">
-              <span class="badge">${item.genre}</span>
-              <span class="badge">${item.bpm} BPM</span>
-              <span class="badge">${item.key}</span>
-              <span class="badge safe">${t.contentId}</span>
-            </div>
+      const ul = document.getElementById("trackList");
+      ul.innerHTML = "";
+      filteredTracks.forEach((item, idx) => {
+        const li = document.createElement("li");
+        li.className = "track-row" + (activeTrack && activeTrack.slug === item.slug ? " active" : "");
+        li.innerHTML = `
+          <span class="row-num">${String(idx + 1).padStart(2, "0")}</span>
+          <div>
+            <div class="row-title">${item.title}</div>
+            <div class="row-sub">${item.genre} · ${item.key}</div>
           </div>
-          <p class="mood">${mood}</p>
-          ${hasAudio ? `<audio controls preload="none" src="${playSrc}"></audio>` : ""}
-          <div class="actions">
-            <a class="btn primary ${item.mp3_url ? "" : "disabled"}" href="${item.mp3_url || "#"}" download>${item.mp3_url ? t.dlMp3 : t.comingSoon}</a>
-            ${item.wav_url ? `<a class="btn" href="${item.wav_url}" download>${t.dlWav}</a>` : ""}
-            <button class="btn copy-btn" type="button">${t.copyCredit}</button>
-            ${item.youtube_url ? `<a class="btn" href="${item.youtube_url}" target="_blank" rel="noopener">${t.yt}</a>` : ""}
-          </div>
+          <div class="row-bpm">${item.bpm} BPM</div>
         `;
-        const copyBtn = card.querySelector(".copy-btn");
-        copyBtn.onclick = async () => {
-          await navigator.clipboard.writeText(t.creditTpl(item));
-          copyBtn.textContent = t.copied;
-          copyBtn.classList.add("copied");
-          setTimeout(() => { copyBtn.textContent = t.copyCredit; copyBtn.classList.remove("copied"); }, 2000);
-        };
-        root.appendChild(card);
+        li.onclick = () => selectTrack(item, true);
+        ul.appendChild(li);
       });
     }
 
-    document.getElementById("btn-en").onclick = () => setLang("en");
-    document.getElementById("btn-de").onclick = () => setLang("de");
-    document.getElementById("search").oninput = renderTracks;
+    function updateDeck(item) {
+      const t = I18N[lang];
+      document.getElementById("deckTitle").textContent = item.title;
+      document.getElementById("deckMeta").textContent = `${item.genre} · ${item.bpm} BPM · ${item.key}`;
+      document.getElementById("deckMood").textContent = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
+      document.getElementById("dlMp3").href = item.mp3_url || "#";
+      document.getElementById("dlWav").href = item.wav_url || "#";
+      document.getElementById("ytLink").href = item.youtube_url || "https://www.youtube.com/@quantenbeatz";
+      document.getElementById("deck").classList.add("ready");
+      orbState.textContent = player.paused ? t.paused : t.playing;
+    }
+
+    function selectTrack(item, autoPlay) {
+      const changed = !activeTrack || activeTrack.slug !== item.slug;
+      activeTrack = item;
+      updateDeck(item);
+      renderList();
+      if (changed) {
+        player.src = item.preview_url || item.mp3_url;
+        player.load();
+      }
+      if (autoPlay) {
+        ensureAudioGraph();
+        if (!changed && !player.paused) { player.pause(); }
+        else { player.play().catch(() => {}); }
+      }
+    }
+
+    function togglePlay() {
+      if (!activeTrack && allTracks.length) { selectTrack(allTracks[0], true); return; }
+      ensureAudioGraph();
+      if (player.paused) player.play().catch(() => {});
+      else player.pause();
+    }
+
+    btnPlay.onclick = togglePlay;
+    document.getElementById("orbWrap").onclick = togglePlay;
+
+    player.onplay = () => { btnPlay.textContent = "❚❚"; orbState.textContent = I18N[lang].playing; };
+    player.onpause = () => { btnPlay.textContent = "▶"; orbState.textContent = I18N[lang].paused; };
+    player.onended = () => {
+      const idx = filteredTracks.findIndex(x => activeTrack && x.slug === x.slug && x.slug === activeTrack.slug);
+      if (idx >= 0 && idx + 1 < filteredTracks.length) selectTrack(filteredTracks[idx + 1], true);
+    };
+    player.ontimeupdate = () => {
+      const cur = player.currentTime || 0;
+      const dur = player.duration || 0;
+      scrubFill.style.width = dur > 0 ? `${(cur / dur) * 100}%` : "0%";
+      timeTxt.textContent = `${fmt(cur)} / ${fmt(dur)}`;
+    };
+
+    document.getElementById("scrubTrack").onclick = (e) => {
+      if (!isFinite(player.duration) || player.duration <= 0) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      player.currentTime = frac * player.duration;
+    };
+
+    document.getElementById("btnCredit").onclick = async () => {
+      if (!activeTrack) return;
+      const b = document.getElementById("btnCredit");
+      await navigator.clipboard.writeText(I18N[lang].creditTpl(activeTrack));
+      b.textContent = I18N[lang].copied;
+      b.classList.add("done");
+      setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
+    };
+
+    document.getElementById("btnFilter").onclick = () => {
+      const dr = document.getElementById("drawer");
+      dr.classList.toggle("open");
+      document.getElementById("btnFilter").classList.toggle("active", dr.classList.contains("open"));
+      if (dr.classList.contains("open")) document.getElementById("search").focus();
+    };
+    document.getElementById("btnLang").onclick = () => { lang = lang === "en" ? "de" : "en"; applyLang(); };
+    document.getElementById("search").oninput = renderList;
+
+    const modalBg = document.getElementById("modalBg");
+    document.getElementById("btnLic").onclick = () => modalBg.classList.add("open");
+    document.getElementById("modalClose").onclick = () => modalBg.classList.remove("open");
+    modalBg.onclick = (e) => { if (e.target === modalBg) modalBg.classList.remove("open"); };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); togglePlay(); }
+      if (e.key === "Escape") modalBg.classList.remove("open");
+    });
+
+    // Living Monochrome Space Background + Live Quantum Orb Visualizer
+    const space = document.getElementById("space");
+    const sctx = space.getContext("2d");
+    const orb = document.getElementById("orbCanvas");
+    const octx = orb.getContext("2d");
+
+    let stars = [];
+    function resizeSpace() {
+      space.width = window.innerWidth;
+      space.height = window.innerHeight;
+      stars = Array.from({ length: 85 }, () => ({
+        ang: Math.random() * Math.PI * 2,
+        d: Math.random(),
+        spd: 0.0005 + Math.random() * 0.0018,
+        sz: 0.7 + Math.random() * 1.6
+      }));
+    }
+    window.addEventListener("resize", resizeSpace);
+    resizeSpace();
+
+    let rot = 0;
+    function animate() {
+      let bass = 0;
+      if (analyser && !player.paused) {
+        analyser.getByteFrequencyData(freqData);
+        let sum = 0;
+        for (let i = 0; i < 10; i++) sum += freqData[i];
+        bass = (sum / 10) / 255;
+      }
+
+      // 1) Space 3D Warp Particles
+      sctx.clearRect(0, 0, space.width, space.height);
+      const scx = space.width / 2, scy = space.height / 2;
+      const maxR = Math.hypot(scx, scy);
+      for (const st of stars) {
+        st.d += st.spd * (1 + bass * 5.0) * (0.3 + st.d * 1.5);
+        if (st.d > 1.05) { st.d = 0.04; st.ang = Math.random() * Math.PI * 2; }
+        const x = scx + Math.cos(st.ang) * st.d * maxR;
+        const y = scy + Math.sin(st.ang) * st.d * maxR;
+        sctx.fillStyle = `rgba(255,255,255,${(st.d * (0.28 + bass * 0.45)).toFixed(3)})`;
+        sctx.beginPath(); sctx.arc(x, y, st.sz * (0.6 + st.d), 0, Math.PI * 2); sctx.fill();
+      }
+
+      // 2) Quantum Orb Live Spectrum
+      const W = orb.width, H = orb.height, cx = W / 2, cy = H / 2;
+      octx.clearRect(0, 0, W, H);
+      rot += 0.004 + bass * 0.012;
+
+      const r0 = 152 + bass * 18;
+      // Subtle radial glow
+      const grd = octx.createRadialGradient(cx, cy, r0 * 0.4, cx, cy, r0 * 1.9);
+      grd.addColorStop(0, `rgba(255,255,255,${(0.06 + bass * 0.14).toFixed(3)})`);
+      grd.addColorStop(1, "rgba(255,255,255,0)");
+      octx.fillStyle = grd;
+      octx.beginPath(); octx.arc(cx, cy, r0 * 1.9, 0, Math.PI * 2); octx.fill();
+
+      // Rotating precision arcs
+      octx.strokeStyle = "rgba(255,255,255,0.28)";
+      octx.lineWidth = 2;
+      for (let k = 0; k < 4; k++) {
+        const a = rot + k * (Math.PI / 2);
+        octx.beginPath(); octx.arc(cx, cy, r0 - 16, a, a + 0.72); octx.stroke();
+      }
+
+      // Main ring
+      octx.strokeStyle = `rgba(255,255,255,${(0.45 + bass * 0.55).toFixed(3)})`;
+      octx.lineWidth = 2.5;
+      octx.beginPath(); octx.arc(cx, cy, r0, 0, Math.PI * 2); octx.stroke();
+
+      // 96 radial needles (idle breath or real live FFT)
+      const bars = 96;
+      const tNow = performance.now() * 0.0015;
+      for (let i = 0; i < bars; i++) {
+        const ang = (i / bars) * Math.PI * 2 - Math.PI / 2;
+        let amp = 0.08 + 0.05 * Math.sin(tNow * 2 + i * 0.25);
+        if (analyser && !player.paused && freqData) {
+          const idx = i < 48 ? i : (95 - i);
+          amp = Math.pow((freqData[(idx * 2) % freqData.length] || 0) / 255, 1.15);
+        }
+        const len = 8 + amp * 135;
+        const x1 = cx + Math.cos(ang) * (r0 + 8);
+        const y1 = cy + Math.sin(ang) * (r0 + 8);
+        const x2 = cx + Math.cos(ang) * (r0 + 8 + len);
+        const y2 = cy + Math.sin(ang) * (r0 + 8 + len);
+        octx.strokeStyle = `rgba(255,255,255,${(0.28 + amp * 0.72).toFixed(3)})`;
+        octx.lineWidth = 2.4;
+        octx.beginPath(); octx.moveTo(x1, y1); octx.lineTo(x2, y2); octx.stroke();
+        if (amp > 0.55) {
+          octx.fillStyle = "rgba(255,255,255,0.9)";
+          octx.beginPath(); octx.arc(x2, y2, 2.5, 0, Math.PI * 2); octx.fill();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
 
     fetch("tracks.json")
       .then(r => r.json())
-      .then(data => { allTracks = data; setLang(lang); })
-      .catch(() => { document.getElementById("tracks").innerHTML = "<p>Could not load tracks.json</p>"; });
+      .then(data => {
+        allTracks = data;
+        applyLang();
+        if (allTracks.length) selectTrack(allTracks[0], false);
+      });
   </script>
 </body>
 </html>
