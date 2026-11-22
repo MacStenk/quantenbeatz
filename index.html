@@ -244,7 +244,8 @@
         const card = document.createElement("article");
         card.className = "card";
         const mood = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
-        const hasAudio = Boolean(item.mp3_url);
+        const playSrc = item.preview_url || item.mp3_url;
+        const hasAudio = Boolean(playSrc);
         card.innerHTML = `
           <div class="card-top">
             <div>
@@ -259,7 +260,7 @@
             </div>
           </div>
           <p class="mood">${mood}</p>
-          ${hasAudio ? `<audio controls preload="none" src="${item.mp3_url}"></audio>` : ""}
+          ${hasAudio ? `<audio controls preload="none" src="${playSrc}"></audio>` : ""}
           <div class="actions">
             <a class="btn primary ${item.mp3_url ? "" : "disabled"}" href="${item.mp3_url || "#"}" download>${item.mp3_url ? t.dlMp3 : t.comingSoon}</a>
             ${item.wav_url ? `<a class="btn" href="${item.wav_url}" download>${t.dlWav}</a>` : ""}
