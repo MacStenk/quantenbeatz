@@ -7,14 +7,14 @@
   <meta name="description" content="Free electronic, dark techno and cinematic background tracks for YouTube, Shorts, Reels and Streams. Direct MP3 &amp; WAV downloads, Content ID free (CC BY 4.0).">
   <style>
     :root {
-      --bg: #050810;
-      --bg-card: #0c1220;
-      --border: rgba(56, 189, 248, 0.16);
-      --border-hover: rgba(56, 189, 248, 0.45);
-      --text: #f5f0e6;
-      --muted: #94a3b8;
-      --cyan: #38bdf8;
-      --gold: #eab36b;
+      --bg: #000000;
+      --bg-card: #0a0a0c;
+      --border: rgba(255, 255, 255, 0.14);
+      --border-hover: rgba(255, 255, 255, 0.48);
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --cyan: #ffffff;
+      --gold: #d4d4d8;
       --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
       --sans: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -25,8 +25,7 @@
       font-family: var(--sans);
       color: var(--text);
       background:
-        radial-gradient(900px 500px at 50% -10%, rgba(56, 189, 248, 0.12), transparent 70%),
-        radial-gradient(700px 420px at 85% 20%, rgba(234, 179, 107, 0.07), transparent 70%),
+        radial-gradient(900px 480px at 50% -10%, rgba(255, 255, 255, 0.08), transparent 70%),
         var(--bg);
       line-height: 1.5;
     }
@@ -67,7 +66,7 @@
       padding: 7px 13px; border-radius: 999px; font-size: 12px; font-family: var(--mono);
       cursor: pointer; transition: .15s;
     }
-    .pill.active, .pill:hover { border-color: var(--cyan); color: var(--text); background: rgba(56, 189, 248, 0.12); }
+    .pill.active, .pill:hover { border-color: var(--cyan); color: var(--text); background: rgba(255, 255, 255, 0.12); }
 
     .grid { display: grid; gap: 16px; }
     .card {
@@ -76,16 +75,16 @@
     }
     .card:hover { border-color: var(--border-hover); }
     .card-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .track-title { margin: 0; font-size: 20px; font-weight: 700; }
-    .track-artist { margin: 2px 0 0; font-size: 13px; color: var(--gold); font-style: italic; font-family: Georgia, serif; }
+    .track-title { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.4px; }
+    .track-artist { margin: 2px 0 0; font-size: 12px; color: var(--muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
     .badges { display: flex; flex-wrap: wrap; gap: 6px; }
     .badge {
       font-family: var(--mono); font-size: 11px; padding: 4px 9px; border-radius: 6px;
-      background: rgba(56, 189, 248, 0.1); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.22);
+      background: rgba(255, 255, 255, 0.06); color: #e4e4e7; border: 1px solid rgba(255, 255, 255, 0.18);
     }
-    .badge.safe { background: rgba(34, 197, 94, 0.1); color: #86efac; border-color: rgba(34, 197, 94, 0.25); }
+    .badge.safe { background: rgba(255, 255, 255, 0.12); color: #ffffff; border-color: rgba(255, 255, 255, 0.35); }
     .mood { margin: 10px 0 14px; font-size: 13px; color: var(--muted); }
-    audio { width: 100%; height: 40px; border-radius: 8px; margin-bottom: 14px; filter: invert(0.92) hue-rotate(180deg); }
+    audio { width: 100%; height: 40px; border-radius: 8px; margin-bottom: 14px; filter: invert(0.95) grayscale(1); }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .btn {
       display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
@@ -93,10 +92,10 @@
       border: 1px solid var(--border); color: var(--text); background: rgba(255, 255, 255, 0.03);
       cursor: pointer; transition: .15s;
     }
-    .btn:hover { border-color: var(--cyan); background: rgba(56, 189, 248, 0.12); }
-    .btn.primary { background: var(--cyan); color: #04101d; border-color: var(--cyan); }
-    .btn.primary:hover { filter: brightness(1.08); }
-    .btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .btn:hover { border-color: #ffffff; background: rgba(255, 255, 255, 0.12); }
+    .btn.primary { background: #ffffff; color: #000000; border-color: #ffffff; }
+    .btn.primary:hover { filter: brightness(0.9); }
+    .btn.copied { background: #ffffff; border-color: #ffffff; color: #000000; }
     .btn.disabled { opacity: 0.45; pointer-events: none; }
 
     .license-box {
