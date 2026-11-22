@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuantenBeatz — Free Royalty-Free Electronic &amp; Techno Music (CC BY 4.0)</title>
+  <meta name="description" content="Free electronic, dark techno and cinematic background tracks for YouTube, Shorts, Reels and Streams. Direct MP3 &amp; WAV downloads, Content ID free (CC BY 4.0).">
+  <style>
+    :root {
+      --bg: #050810;
+      --bg-card: #0c1220;
+      --border: rgba(56, 189, 248, 0.16);
+      --border-hover: rgba(56, 189, 248, 0.45);
+      --text: #f5f0e6;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --gold: #eab36b;
+      --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      --sans: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 50% -10%, rgba(56, 189, 248, 0.12), transparent 70%),
+        radial-gradient(700px 420px at 85% 20%, rgba(234, 179, 107, 0.07), transparent 70%),
+        var(--bg);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 72px; }
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--border);
+    }
+    .brand-tag {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 3px;
+      color: var(--cyan); text-transform: uppercase;
+    }
+    h1 { margin: 6px 0 4px; font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 15px; max-width: 600px; }
+    .lang-switch {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+      background: rgba(12, 18, 32, 0.8); overflow: hidden;
+    }
+    .lang-switch button {
+      border: 0; background: transparent; color: var(--muted); padding: 7px 14px;
+      font-family: var(--mono); font-size: 12px; cursor: pointer; transition: .15s;
+    }
+    .lang-switch button.active { background: var(--cyan); color: #04101d; font-weight: 700; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      margin: 24px 0 20px;
+    }
+    .search {
+      flex: 1 1 240px; padding: 11px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-card); color: var(--text);
+      font-size: 14px; outline: none;
+    }
+    .search:focus { border-color: var(--cyan); }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      padding: 7px 13px; border-radius: 999px; font-size: 12px; font-family: var(--mono);
+      cursor: pointer; transition: .15s;
+    }
+    .pill.active, .pill:hover { border-color: var(--cyan); color: var(--text); background: rgba(56, 189, 248, 0.12); }
+
+    .grid { display: grid; gap: 16px; }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 20px; transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--border-hover); }
+    .card-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .track-title { margin: 0; font-size: 20px; font-weight: 700; }
+    .track-artist { margin: 2px 0 0; font-size: 13px; color: var(--gold); font-style: italic; font-family: Georgia, serif; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge {
+      font-family: var(--mono); font-size: 11px; padding: 4px 9px; border-radius: 6px;
+      background: rgba(56, 189, 248, 0.1); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.22);
+    }
+    .badge.safe { background: rgba(34, 197, 94, 0.1); color: #86efac; border-color: rgba(34, 197, 94, 0.25); }
+    .mood { margin: 10px 0 14px; font-size: 13px; color: var(--muted); }
+    audio { width: 100%; height: 40px; border-radius: 8px; margin-bottom: 14px; filter: invert(0.92) hue-rotate(180deg); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+      padding: 9px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border); color: var(--text); background: rgba(255, 255, 255, 0.03);
+      cursor: pointer; transition: .15s;
+    }
+    .btn:hover { border-color: var(--cyan); background: rgba(56, 189, 248, 0.12); }
+    .btn.primary { background: var(--cyan); color: #04101d; border-color: var(--cyan); }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .btn.disabled { opacity: 0.45; pointer-events: none; }
+
+    .license-box {
+      margin-top: 36px; padding: 18px 20px; border-radius: 14px;
+      border: 1px solid var(--border); background: rgba(12, 18, 32, 0.6);
+      font-size: 13px; color: var(--muted);
+    }
+    .license-box strong { color: var(--text); }
+    footer {
+      margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted);
+      font-family: var(--mono);
+    }
+    footer a { color: var(--cyan); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand-tag">QUANTENBEATZ // FREE SOUND LIBRARY</div>
+        <h1 data-i18n="title">Free Electronic &amp; Techno Music</h1>
+        <p class="subtitle" data-i18n="subtitle">
+          Royalty-free background tracks for YouTube, Shorts, Reels &amp; Streams. Direct MP3 &amp; WAV downloads, no ads, Content ID free (CC BY 4.0).
+        </p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button id="btn-en" class="active" type="button">EN</button>
+        <button id="btn-de" type="button">DE</button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <input id="search" class="search" type="search" placeholder="Search title, genre, mood, BPM...">
+      <div id="pills" class="pills"></div>
+    </div>
+
+    <main id="tracks" class="grid"></main>
+
+    <section class="license-box">
+      <strong data-i18n="licTitle">License (CC BY 4.0 — Free for Commercial &amp; Non-Commercial Use):</strong>
+      <span data-i18n="licBody">
+        You can use all tracks for free in YouTube videos, Shorts, Reels, TikToks, podcasts and livestreams (including monetized channels). Just paste the short credit into your description using the "Copy Credit" button.
+      </span>
+    </section>
+
+    <footer>
+      <a href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube @quantenbeatz</a>
+      &nbsp;·&nbsp;
+      <a href="https://stevennoack.de/werkzeuge" target="_blank" rel="noopener">stevennoack.de</a>
+    </footer>
+  </div>
+
+  <script>
+    const I18N = {
+      en: {
+        title: "Free Electronic & Techno Music",
+        subtitle: "Royalty-free background tracks for YouTube, Shorts, Reels & Streams. Direct MP3 & WAV downloads, no ads, Content ID free (CC BY 4.0).",
+        search: "Search title, genre, mood, BPM...",
+        all: "All",
+        dlMp3: "Download MP3",
+        dlWav: "Download WAV",
+        copyCredit: "Copy Credit (CC BY)",
+        copied: "Credit copied!",
+        yt: "YouTube",
+        comingSoon: "Release coming soon",
+        contentId: "No Content ID",
+        licTitle: "License (CC BY 4.0 — Free for Monetization): ",
+        licBody: "Use all tracks for free in YouTube videos, Shorts, Reels, TikToks, podcasts and streams. Just paste the short credit into your description.",
+        empty: "No matching tracks found.",
+        creditTpl: (t) => `Music: "${t.title}" by ${t.artist} (QuantenBeatz)\nFree Download & License (CC BY 4.0): ${t.release_url || location.href}`
+      },
+      de: {
+        title: "Lizenzfreie Elektronik- & Techno-Musik",
+        subtitle: "Kostenlose Hintergrundtracks für YouTube, Shorts, Reels & Streams. Direkter MP3- & WAV-Download ohne Werbung, kein Content ID (CC BY 4.0).",
+        search: "Titel, Genre, Stimmung oder BPM suchen...",
+        all: "Alle",
+        dlMp3: "MP3 laden",
+        dlWav: "WAV laden",
+        copyCredit: "Credit kopieren (CC BY)",
+        copied: "Credit kopiert!",
+        yt: "YouTube",
+        comingSoon: "Release folgt",
+        contentId: "Kein Content ID",
+        licTitle: "Lizenz (CC BY 4.0 — Frei für Monetarisierung): ",
+        licBody: "Alle Tracks sind kostenlos nutzbar für YouTube, Shorts, Reels, TikTok, Podcasts und Streams. Einfach den kurzen Credit-Text in deine Videobeschreibung kopieren.",
+        empty: "Keine passenden Tracks gefunden.",
+        creditTpl: (t) => `Musik: „${t.title}“ von ${t.artist} (QuantenBeatz)\nKostenloser Download & Lizenz (CC BY 4.0): ${t.release_url || location.href}`
+      }
+    };
+
+    let lang = (navigator.language || "en").toLowerCase().startsWith("de") ? "de" : "en";
+    let allTracks = [];
+    let activeGenre = "ALL";
+
+    function setLang(l) {
+      lang = l;
+      document.documentElement.lang = l;
+      document.getElementById("btn-en").classList.toggle("active", l === "en");
+      document.getElementById("btn-de").classList.toggle("active", l === "de");
+      const t = I18N[lang];
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = t[el.dataset.i18n];
+      });
+      document.getElementById("search").placeholder = t.search;
+      renderPills();
+      renderTracks();
+    }
+
+    function renderPills() {
+      const genres = ["ALL", ...new Set(allTracks.map(x => x.genre_tag).filter(Boolean))];
+      const box = document.getElementById("pills");
+      box.innerHTML = "";
+      genres.forEach(g => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "pill" + (activeGenre === g ? " active" : "");
+        b.textContent = g === "ALL" ? I18N[lang].all : g;
+        b.onclick = () => { activeGenre = g; renderPills(); renderTracks(); };
+        box.appendChild(b);
+      });
+    }
+
+    function renderTracks() {
+      const t = I18N[lang];
+      const q = document.getElementById("search").value.trim().toLowerCase();
+      const list = allTracks.filter(item => {
+        if (activeGenre !== "ALL" && item.genre_tag !== activeGenre) return false;
+        if (!q) return true;
+        const hay = `${item.title} ${item.genre} ${item.mood_en} ${item.mood_de} ${item.bpm} ${item.key}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      const root = document.getElementById("tracks");
+      if (!list.length) {
+        root.innerHTML = `<p style="color:var(--muted)">${t.empty}</p>`;
+        return;
+      }
+      root.innerHTML = "";
+      list.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "card";
+        const mood = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
+        const hasAudio = Boolean(item.mp3_url);
+        card.innerHTML = `
+          <div class="card-top">
+            <div>
+              <h2 class="track-title">${item.title}</h2>
+              <div class="track-artist">${item.artist}</div>
+            </div>
+            <div class="badges">
+              <span class="badge">${item.genre}</span>
+              <span class="badge">${item.bpm} BPM</span>
+              <span class="badge">${item.key}</span>
+              <span class="badge safe">${t.contentId}</span>
+            </div>
+          </div>
+          <p class="mood">${mood}</p>
+          ${hasAudio ? `<audio controls preload="none" src="${item.mp3_url}"></audio>` : ""}
+          <div class="actions">
+            <a class="btn primary ${item.mp3_url ? "" : "disabled"}" href="${item.mp3_url || "#"}" download>${item.mp3_url ? t.dlMp3 : t.comingSoon}</a>
+            ${item.wav_url ? `<a class="btn" href="${item.wav_url}" download>${t.dlWav}</a>` : ""}
+            <button class="btn copy-btn" type="button">${t.copyCredit}</button>
+            ${item.youtube_url ? `<a class="btn" href="${item.youtube_url}" target="_blank" rel="noopener">${t.yt}</a>` : ""}
+          </div>
+        `;
+        const copyBtn = card.querySelector(".copy-btn");
+        copyBtn.onclick = async () => {
+          await navigator.clipboard.writeText(t.creditTpl(item));
+          copyBtn.textContent = t.copied;
+          copyBtn.classList.add("copied");
+          setTimeout(() => { copyBtn.textContent = t.copyCredit; copyBtn.classList.remove("copied"); }, 2000);
+        };
+        root.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-en").onclick = () => setLang("en");
+    document.getElementById("btn-de").onclick = () => setLang("de");
+    document.getElementById("search").oninput = renderTracks;
+
+    fetch("tracks.json")
+      .then(r => r.json())
+      .then(data => { allTracks = data; setLang(lang); })
+      .catch(() => { document.getElementById("tracks").innerHTML = "<p>Could not load tracks.json</p>"; });
+  </script>
+</body>
+</html>

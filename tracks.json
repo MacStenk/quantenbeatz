@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "reward-hack-intro",
+    "title": "Reward Hack Intro",
+    "artist": "bewusst machen",
+    "genre": "Dark Techno / Driving Electronic",
+    "genre_tag": "Dark Techno",
+    "bpm": 130,
+    "key": "D minor",
+    "mood_en": "Driving, fast-paced, digital, hypnotic — ideal for tech & AI shorts.",
+    "mood_de": "Treibend, rasant, digital, hypnotisch — ideal für Tech- & KI-Shorts.",
+    "mp3_url": "",
+    "wav_url": "",
+    "release_url": "",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "network-cascade",
+    "title": "Network Cascade",
+    "artist": "bewusst machen",
+    "genre": "Minimal Techno / Cyber Thriller",
+    "genre_tag": "Minimal Techno",
+    "bpm": 134,
+    "key": "F# minor",
+    "mood_en": "Urgent pulsing bassline & fast digital synth arp for high-tension stories.",
+    "mood_de": "Pulsierender Bass & schneller Digital-Arp für packende IT- & Thriller-Stories.",
+    "mp3_url": "",
+    "wav_url": "",
+    "release_url": "",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "digital-lockout",
+    "title": "Digital Lockout",
+    "artist": "bewusst machen",
+    "genre": "Futuristic Tech Techno",
+    "genre_tag": "Tech Techno",
+    "bpm": 128,
+    "key": "C minor",
+    "mood_en": "Sharp digital arp, punchy low-end bass & mysterious atmosphere.",
+    "mood_de": "Scharfer Digital-Arp, druckvoller Bass & mysteriöse Atmosphäre.",
+    "mp3_url": "",
+    "wav_url": "",
+    "release_url": "",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  }
+]
