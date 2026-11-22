@@ -46,5 +46,53 @@
     "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-digital-lockout/digital-lockout.wav",
     "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-digital-lockout",
     "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "glitch-overdrive",
+    "title": "Glitch Overdrive",
+    "artist": "QuantenBeatz",
+    "genre": "Industrial Glitch Techno / Cyberpunk",
+    "genre_tag": "Industrial",
+    "bpm": 132,
+    "key": "F# minor",
+    "mood_en": "Aggressive distorted bassline, glitchy cyberpunk synths & high energy.",
+    "mood_de": "Verzerrter Bass, glitchige Cyberpunk-Synths & volle Energie.",
+    "preview_url": "previews/glitch-overdrive.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-glitch-overdrive/glitch-overdrive.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-glitch-overdrive/glitch-overdrive.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-glitch-overdrive",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "alarm-protocol",
+    "title": "Alarm Protocol",
+    "artist": "QuantenBeatz",
+    "genre": "Heavy Dark Industrial Techno",
+    "genre_tag": "Industrial",
+    "bpm": 136,
+    "key": "E minor",
+    "mood_en": "Heavy distorted 808 bass, alarm synth textures & relentless tension.",
+    "mood_de": "Schwerer 808-Bass, Alarm-Synth-Texturen & maximale Spannung.",
+    "preview_url": "previews/alarm-protocol.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-alarm-protocol/alarm-protocol.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-alarm-protocol/alarm-protocol.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-alarm-protocol",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "cipher-pulse",
+    "title": "Cipher Pulse",
+    "artist": "QuantenBeatz",
+    "genre": "Futuristic Tech Techno",
+    "genre_tag": "Tech Techno",
+    "bpm": 128,
+    "key": "G minor",
+    "mood_en": "Dark electronic pulse, crisp percussion & hypnotic cyber atmosphere.",
+    "mood_de": "Dunkler Elektro-Pulse, präzise Percussion & hypnotische Cyber-Atmosphäre.",
+    "preview_url": "previews/cipher-pulse.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-cipher-pulse/cipher-pulse.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-cipher-pulse/cipher-pulse.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-cipher-pulse",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
   }
 ]
