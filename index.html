@@ -880,15 +880,7 @@
       octx.fillStyle = grd;
       octx.beginPath(); octx.arc(cx, cy, r0 * 1.9, 0, Math.PI * 2); octx.fill();
 
-      // Rotating precision arcs
-      octx.strokeStyle = "rgba(255,255,255,0.28)";
-      octx.lineWidth = 2;
-      for (let k = 0; k < 4; k++) {
-        const a = rot + k * (Math.PI / 2);
-        octx.beginPath(); octx.arc(cx, cy, r0 - 16, a, a + 0.72); octx.stroke();
-      }
-
-      // Main ring
+      // Main ring (clean inner space for logo, no inner crescent arcs)
       octx.strokeStyle = `rgba(255,255,255,${(0.45 + bass * 0.55).toFixed(3)})`;
       octx.lineWidth = 2.5;
       octx.beginPath(); octx.arc(cx, cy, r0, 0, Math.PI * 2); octx.stroke();
