@@ -173,12 +173,55 @@
     .act.solid:hover { opacity: 0.86; }
     .act.done { background: #fff; color: #000; border-color: #fff; }
 
+    /* Monochrome DJ Recipe Card (visible on Mashup items) */
+    .recipe-box {
+      display: none; text-align: left; margin: 0 auto 18px; max-width: 520px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+      background: rgba(255,255,255,0.025); font-family: var(--mono); font-size: 11px;
+    }
+    .recipe-box.show { display: block; }
+    .recipe-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      color: var(--fg-dim); letter-spacing: 1.5px; font-size: 10px; text-transform: uppercase;
+    }
+    .recipe-dl {
+      color: #fff; text-decoration: none; border: 1px solid var(--line); border-radius: 999px;
+      padding: 2px 9px; font-size: 10px; letter-spacing: 1.2px; transition: .18s;
+    }
+    .recipe-dl:hover { background: #fff; color: #000; border-color: #fff; }
+    .recipe-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      padding: 4px 0; line-height: 1.45;
+    }
+    .recipe-deck { color: var(--fg-dim); font-size: 10px; letter-spacing: 1.4px; margin-right: 6px; }
+    .recipe-name { color: #fff; font-weight: 600; }
+    .recipe-link {
+      background: none; border: 0; padding: 0; color: #fff; font: inherit; font-weight: 600;
+      cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,0.38);
+    }
+    .recipe-link:hover { text-decoration-color: #fff; }
+    .recipe-meta { color: var(--fg-dim); font-size: 10px; letter-spacing: 0.8px; white-space: nowrap; }
+
     /* Right: Futuristic Quantum Index (Clean, Airy, Progressive) */
     .index-col { display: flex; flex-direction: column; }
     .index-head {
-      display: flex; justify-content: space-between; align-items: baseline;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
       margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
       font-family: var(--mono); font-size: 11px; letter-spacing: 2.5px; color: var(--fg-dim); text-transform: uppercase;
+    }
+    .cat-tabs { display: inline-flex; gap: 6px; }
+    .cat-tab {
+      background: transparent; color: var(--fg-dim); border: 1px solid var(--line);
+      border-radius: 999px; padding: 4px 11px; font-family: var(--mono); font-size: 10px;
+      letter-spacing: 1.4px; text-transform: uppercase; cursor: pointer; transition: .18s;
+    }
+    .cat-tab:hover { color: #fff; border-color: var(--line-strong); }
+    .cat-tab.active { background: #fff; color: #000; border-color: #fff; font-weight: 700; }
+    .row-badge {
+      display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.35); font-family: var(--mono); font-size: 9px;
+      letter-spacing: 1.4px; color: rgba(255,255,255,0.85); vertical-align: middle;
     }
     .track-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
     .track-row {
@@ -274,6 +317,7 @@
           <h1 class="deck-title" id="deckTitle">—</h1>
           <div class="deck-meta" id="deckMeta">—</div>
           <p class="deck-mood" id="deckMood"></p>
+          <div id="recipeBox" class="recipe-box"></div>
 
           <div class="scrub-row">
             <button id="btnPlay" class="play-circle" type="button" aria-label="Play / Pause">▶</button>
@@ -307,7 +351,7 @@
 
       <section class="index-col">
         <div class="index-head">
-          <span data-i18n="indexLabel">SIGNAL ARCHIVE</span>
+          <div id="catTabs" class="cat-tabs"></div>
           <span id="trackCount">00 TRACKS</span>
         </div>
         <ul id="trackList" class="track-list"></ul>
@@ -498,25 +542,51 @@
       });
     }
 
+    let activeCat = "all";
+    function renderCatTabs() {
+      const box = document.getElementById("catTabs");
+      const nTracks = allTracks.filter(x => !x.mashup).length;
+      const nMash = allTracks.filter(x => !!x.mashup).length;
+      const tabs = [
+        { id: "all", label: (lang === "de" ? "ALLE" : "ALL") + ` (${allTracks.length})` },
+        { id: "tracks", label: `TRACKS (${nTracks})` },
+        { id: "mashups", label: `MASHUPS (${nMash})` }
+      ];
+      box.innerHTML = "";
+      tabs.forEach(tb => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "cat-tab" + (activeCat === tb.id ? " active" : "");
+        b.textContent = tb.label;
+        b.onclick = () => { activeCat = tb.id; renderCatTabs(); renderList(); };
+        box.appendChild(b);
+      });
+    }
+
     function renderList() {
+      renderCatTabs();
       const q = document.getElementById("search").value.trim().toLowerCase();
       filteredTracks = allTracks.filter(item => {
+        if (activeCat === "tracks" && item.mashup) return false;
+        if (activeCat === "mashups" && !item.mashup) return false;
         if (activeGenre !== "ALL" && item.genre_tag !== activeGenre) return false;
         if (!q) return true;
         return `${item.title} ${item.genre} ${item.bpm} ${item.key} ${item.mood_en} ${item.mood_de}`.toLowerCase().includes(q);
       });
+      const unit = activeCat === "mashups" ? "MASHUPS" : I18N[lang].tracks;
       document.getElementById("trackCount").textContent =
-        `${String(filteredTracks.length).padStart(2, "0")} ${I18N[lang].tracks}`;
+        `${String(filteredTracks.length).padStart(2, "0")} ${unit}`;
 
       const ul = document.getElementById("trackList");
       ul.innerHTML = "";
       filteredTracks.forEach((item, idx) => {
         const li = document.createElement("li");
         li.className = "track-row" + (activeTrack && activeTrack.slug === item.slug ? " active" : "");
+        const badge = item.mashup ? `<span class="row-badge">MASHUP</span>` : "";
         li.innerHTML = `
           <span class="row-num">${String(idx + 1).padStart(2, "0")}</span>
           <div>
-            <div class="row-title">${item.title}</div>
+            <div class="row-title">${item.title}${badge}</div>
             <div class="row-sub">${item.genre} · ${item.key}</div>
           </div>
           <div class="row-bpm">${item.bpm} BPM</div>
@@ -526,11 +596,35 @@
       });
     }
 
+    function renderRecipe(item) {
+      const box = document.getElementById("recipeBox");
+      const m = item && item.mashup;
+      if (!m) { box.classList.remove("show"); box.innerHTML = ""; return; }
+      const deckRow = (lbl, d) => {
+        const linked = d.slug && allTracks.find(x => x.slug === d.slug);
+        const nameHtml = linked
+          ? `<button type="button" class="recipe-link" data-jump="${d.slug}">${d.title}</button>`
+          : `<span class="recipe-name">${d.title}</span>`;
+        return `<div class="recipe-row"><div><span class="recipe-deck">${lbl}</span>${nameHtml}</div><span class="recipe-meta">${d.cue} · ${d.loop} · ${d.pitch}</span></div>`;
+      };
+      const headLbl = lang === "de" ? `DJ-REZEPT // ${item.bpm} BPM · ${m.bars} BARS` : `DJ RECIPE // ${item.bpm} BPM · ${m.bars} BARS`;
+      const dlHtml = m.recipe_url ? `<a class="recipe-dl" href="${m.recipe_url}" download>REZEPT .JSON</a>` : "";
+      box.innerHTML = `<div class="recipe-head"><span>${headLbl}</span>${dlHtml}</div>${deckRow("DECK A", m.deck_a)}${deckRow("DECK B", m.deck_b)}`;
+      box.querySelectorAll("[data-jump]").forEach(btn => {
+        btn.onclick = () => {
+          const target = allTracks.find(x => x.slug === btn.dataset.jump);
+          if (target) { activeCat = "all"; activeGenre = "ALL"; selectTrack(target, true); }
+        };
+      });
+      box.classList.add("show");
+    }
+
     function updateDeck(item) {
       const t = I18N[lang];
       document.getElementById("deckTitle").textContent = item.title;
       document.getElementById("deckMeta").textContent = `${item.genre} · ${item.bpm} BPM · ${item.key}`;
       document.getElementById("deckMood").textContent = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
+      renderRecipe(item);
       document.getElementById("dlMp3").href = item.mp3_url || "#";
       document.getElementById("dlWav").href = item.wav_url || "#";
       document.getElementById("ytLink").href = item.youtube_url || "https://www.youtube.com/@quantenbeatz";

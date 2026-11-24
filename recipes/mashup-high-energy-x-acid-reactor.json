@@ -1,0 +1,111 @@
+{
+ "id": 11,
+ "name": "QuantenBeatz – High Energy Electro + QuantenBeatz – Acid Reactor",
+ "created": "2026-11-24T08:11:24",
+ "recipe": {
+  "song_a": 401,
+  "song_b": 399,
+  "halbtoene_a": 0,
+  "halbtoene_b": 1,
+  "stems_a": null,
+  "stems_b": null,
+  "loop_a": {
+   "mode": "cue",
+   "size": 16,
+   "start": 62.11,
+   "end": 92.59
+  },
+  "loop_b": {
+   "mode": "cue",
+   "size": 16,
+   "start": 53.02,
+   "end": 79.5
+  },
+  "lautstaerke_a": 1,
+  "lautstaerke_b": 1,
+  "eq_a": {
+   "low": true,
+   "mid": true,
+   "high": true
+  },
+  "eq_b": {
+   "low": true,
+   "mid": true,
+   "high": true
+  },
+  "ablaeufe": {
+   "a": {
+    "schritte": [],
+    "wiederholen": true
+   },
+   "b": {
+    "schritte": [],
+    "wiederholen": true
+   },
+   "c": {
+    "schritte": [],
+    "wiederholen": true
+   },
+   "d": {
+    "schritte": [],
+    "wiederholen": true
+   },
+   "gewaehlt": "a"
+  },
+  "filter_a": 0,
+  "fx_a": {
+   "effekt": "echo",
+   "an": false,
+   "mix": 0.5,
+   "param": 1,
+   "st2": 0.45
+  },
+  "filter_b": 0,
+  "fx_b": {
+   "effekt": "echo",
+   "an": false,
+   "mix": 0.5,
+   "param": 1,
+   "st2": 0.45
+  },
+  "filter_bank": 0,
+  "fx_bank": {
+   "effekt": "echo",
+   "an": false,
+   "mix": 0.5,
+   "param": 1,
+   "st2": 0.45
+  },
+  "hot_a": [
+   1.15,
+   16.39,
+   46.87,
+   62.11,
+   92.59,
+   107.82,
+   123.06,
+   153.54
+  ],
+  "hot_b": [
+   0.05,
+   26.54,
+   39.78,
+   53.02,
+   79.5,
+   105.99,
+   132.47,
+   null
+  ],
+  "bank": [],
+  "master": {
+   "quelle": "a",
+   "bpm": 126
+  },
+  "modus": "mashup",
+  "phrase": false,
+  "namen": {
+   "a": "QuantenBeatz – High Energy Electro",
+   "b": "QuantenBeatz – Acid Reactor"
+  }
+ }
+}

@@ -1,5 +1,27 @@
 [
   {
+    "slug": "mashup-high-energy-x-acid-reactor",
+    "title": "High Energy Electro × Acid Reactor",
+    "artist": "QuantenBeatz",
+    "genre": "Mashup / Electro Acid Loop",
+    "genre_tag": "Mashup",
+    "bpm": 126,
+    "key": "1A × 6A",
+    "mood_en": "30-second festival drop loop: euphoric electro-house lead locked over a +1 ST 303 acid bassline.",
+    "mood_de": "30-Sekunden-Festival-Loop: euphorische Electro-House-Lead über der +1-Halbton-Acid-Bassline.",
+    "preview_url": "previews/mashup-high-energy-x-acid-reactor.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-mashup-high-energy-x-acid-reactor/mashup-high-energy-x-acid-reactor.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-mashup-high-energy-x-acid-reactor/mashup-high-energy-x-acid-reactor.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-mashup-high-energy-x-acid-reactor",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz",
+    "mashup": {
+      "bars": 16,
+      "recipe_url": "recipes/mashup-high-energy-x-acid-reactor.json",
+      "deck_a": { "title": "High Energy Electro", "slug": "", "cue": "Cue 4", "loop": "1:02–1:32", "pitch": "+0 ST" },
+      "deck_b": { "title": "Acid Reactor", "slug": "acid-reactor", "cue": "Cue 4", "loop": "0:53–1:19", "pitch": "+1 ST" }
+    }
+  },
+  {
     "slug": "shades-of-darkness",
     "title": "Shades of Darkness (Extended)",
     "artist": "QuantenBeatz",
