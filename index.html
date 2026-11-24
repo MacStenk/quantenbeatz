@@ -381,6 +381,7 @@
             <a id="dlWav" class="act" href="#" download>WAV</a>
             <button id="btnLoop" class="act" type="button" title="Loop Playback (No Fade in 8s Clip)">↻ LOOP</button>
             <button id="btnClip" class="act" type="button" title="Record 8s Video Sample with Audio">● 8S CLIP</button>
+            <button id="btnFullRec" class="act" type="button" title="Record Full Track Video (from 0:00 until end or Stop)">● FULL REC</button>
             <button id="btnCredit" class="act" type="button" data-i18n="copyCredit">Copy Credit</button>
             <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
           </div>
@@ -989,6 +990,9 @@
     logoImg.crossOrigin = "anonymous";
     logoImg.src = "qb-logo.png?v=3";
     let isRecordingClip = false;
+    let isFullRecMode = false;
+    let activeFullRec = null;
+    let fullRecTimer = null;
     let recStartMs = 0;
     const CLIP_DUR_S = 8.0;
     const FADE_IN_S = 0.6;
@@ -1044,8 +1048,8 @@
       rctx.font = "500 22px 'JetBrains Mono', monospace";
       rctx.fillText("FREE SOUND LIBRARY · @QUANTENBEATZ · CC BY 4.0", W / 2, 1702);
 
-      // Smooth Visual Fade-In (0.6s) & Fade-Out (1.1s) — disabled when Loop is ON
-      if (!isLoopOn) {
+      // Smooth Visual Fade-In (0.6s) & Fade-Out (1.1s) — disabled when Loop is ON or during Full Track Rec
+      if (!isLoopOn && !isFullRecMode) {
         const elapsed = Math.max(0, (performance.now() - recStartMs) / 1000);
         let darkAlpha = 0;
         if (elapsed < FADE_IN_S) {
@@ -1152,6 +1156,92 @@
           }
         }
       }, 1000);
+    };
+
+    const btnFullRec = document.getElementById("btnFullRec");
+    function stopFullRec() {
+      if (fullRecTimer) { clearInterval(fullRecTimer); fullRecTimer = null; }
+      if (activeFullRec && activeFullRec.state !== "inactive") {
+        activeFullRec.stop();
+      }
+    }
+
+    btnFullRec.onclick = async () => {
+      if (isFullRecMode) { stopFullRec(); return; }
+      if (isRecordingClip || !activeTrack) return;
+      ensureAudioGraph();
+      if (gaplessPlaying) stopGapless();
+      player.currentTime = 0;
+      try { await player.play(); } catch (_) {}
+
+      isRecordingClip = true;
+      isFullRecMode = true;
+      const prevTxt = btnFullRec.textContent;
+      btnFullRec.classList.add("done");
+
+      const vidStream = recCanvas.captureStream(60);
+      const tracks = [...vidStream.getVideoTracks()];
+      if (recDest && recDest.stream) {
+        tracks.push(...recDest.stream.getAudioTracks());
+      }
+      const combined = new MediaStream(tracks);
+
+      const candidates = [
+        { mime: "video/mp4;codecs=avc1.64002A,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.640028,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.4D4028,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4", ext: "mp4" },
+        { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+        { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+        { mime: "video/webm", ext: "webm" }
+      ];
+      let chosen = { mime: "", ext: "webm" };
+      for (const c of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(c.mime)) { chosen = c; break; }
+      }
+
+      const chunks = [];
+      const recOpts = { videoBitsPerSecond: 14000000, audioBitsPerSecond: 256000 };
+      if (chosen.mime) recOpts.mimeType = chosen.mime;
+      const rec = new MediaRecorder(combined, recOpts);
+      activeFullRec = rec;
+
+      const onEnded = () => { stopFullRec(); };
+      player.addEventListener("ended", onEnded, { once: true });
+
+      rec.ondataavailable = (ev) => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
+      rec.onstop = () => {
+        player.removeEventListener("ended", onEnded);
+        if (fullRecTimer) { clearInterval(fullRecTimer); fullRecTimer = null; }
+        isRecordingClip = false;
+        isFullRecMode = false;
+        activeFullRec = null;
+        btnFullRec.textContent = prevTxt;
+        btnFullRec.classList.remove("done");
+        const blob = new Blob(chunks, { type: chosen.mime || "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${activeTrack.slug}-full.${chosen.ext}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 6000);
+      };
+
+      recStartMs = performance.now();
+      if (recGain && audioCtx) {
+        recGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        recGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+      }
+
+      drawRecFrame();
+      rec.start(500);
+      btnFullRec.textContent = "■ STOP 0:00";
+      fullRecTimer = setInterval(() => {
+        const sec = Math.floor((performance.now() - recStartMs) / 1000);
+        btnFullRec.textContent = `■ STOP ${fmt(sec)}`;
+      }, 500);
     };
 
     document.getElementById("btnFilter").onclick = () => {
