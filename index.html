@@ -208,6 +208,39 @@
     .recipe-link:hover { text-decoration-color: #fff; }
     .recipe-meta { color: var(--fg-dim); font-size: 10px; letter-spacing: 0.8px; white-space: nowrap; }
 
+    /* Monochrome Special Gift / Studio Note Card */
+    .gift-box {
+      display: none; text-align: left; margin: 18px auto 0; max-width: 520px;
+      border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden;
+      background: rgba(255,255,255,0.03);
+    }
+    .gift-box.show { display: block; }
+    .gift-cover {
+      width: 100%; height: 150px; object-fit: cover; display: block;
+      filter: grayscale(0.75) contrast(1.12); opacity: 0.88;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .gift-body { padding: 14px 16px; }
+    .gift-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 1.8px; color: #fff; text-transform: uppercase;
+    }
+    .gift-toggle {
+      background: transparent; border: 1px solid var(--line); color: var(--fg-dim);
+      font-family: var(--mono); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px; cursor: pointer; transition: .18s;
+    }
+    .gift-toggle:hover { color: #000; background: #fff; border-color: #fff; }
+    .gift-lead { margin: 10px 0 0; font-size: 12.5px; color: var(--fg-dim); line-height: 1.6; }
+    .gift-story {
+      display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 12.5px; color: rgba(255,255,255,0.78); line-height: 1.68;
+    }
+    .gift-story.open { display: block; }
+    .gift-story p { margin: 0 0 10px; }
+    .gift-story p:last-child { margin-bottom: 0; font-style: italic; color: #fff; }
+    .row-badge.gift { background: #fff; color: #000; border-color: #fff; font-weight: 700; }
+
     /* Right: Futuristic Quantum Index (Clean, Airy, Progressive) */
     .index-col { display: flex; flex-direction: column; }
     .index-head {
@@ -352,6 +385,7 @@
             <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
           </div>
           <div id="recipeBox" class="recipe-box"></div>
+          <div id="giftBox" class="gift-box"></div>
         </div>
       </section>
 
@@ -630,13 +664,15 @@
     let activeCat = "all";
     function renderCatTabs() {
       const box = document.getElementById("catTabs");
-      const nTracks = allTracks.filter(x => !x.mashup).length;
+      const nTracks = allTracks.filter(x => !x.mashup && !x.gift).length;
       const nMash = allTracks.filter(x => !!x.mashup).length;
+      const nGifts = allTracks.filter(x => !!x.gift).length;
       const tabs = [
         { id: "all", label: (lang === "de" ? "ALLE" : "ALL") + ` (${allTracks.length})` },
         { id: "tracks", label: `TRACKS (${nTracks})` },
         { id: "mashups", label: `MASHUPS (${nMash})` }
       ];
+      if (nGifts > 0) tabs.push({ id: "specials", label: `SPECIALS (${nGifts})` });
       box.innerHTML = "";
       tabs.forEach(tb => {
         const b = document.createElement("button");
@@ -652,13 +688,14 @@
       renderCatTabs();
       const q = document.getElementById("search").value.trim().toLowerCase();
       filteredTracks = allTracks.filter(item => {
-        if (activeCat === "tracks" && item.mashup) return false;
+        if (activeCat === "tracks" && (item.mashup || item.gift)) return false;
         if (activeCat === "mashups" && !item.mashup) return false;
+        if (activeCat === "specials" && !item.gift) return false;
         if (activeGenre !== "ALL" && item.genre_tag !== activeGenre) return false;
         if (!q) return true;
         return `${item.title} ${item.genre} ${item.bpm} ${item.key} ${item.mood_en} ${item.mood_de}`.toLowerCase().includes(q);
       });
-      const unit = activeCat === "mashups" ? "MASHUPS" : I18N[lang].tracks;
+      const unit = activeCat === "mashups" ? "MASHUPS" : (activeCat === "specials" ? "SPECIALS" : I18N[lang].tracks);
       document.getElementById("trackCount").textContent =
         `${String(filteredTracks.length).padStart(2, "0")} ${unit}`;
 
@@ -667,7 +704,9 @@
       filteredTracks.forEach((item, idx) => {
         const li = document.createElement("li");
         li.className = "track-row" + (activeTrack && activeTrack.slug === item.slug ? " active" : "");
-        const badge = item.mashup ? `<span class="row-badge">MASHUP</span>` : "";
+        const badge = item.gift
+          ? `<span class="row-badge gift">${item.gift.badge || "GIFT"}</span>`
+          : (item.mashup ? `<span class="row-badge">MASHUP</span>` : "");
         li.innerHTML = `
           <span class="row-num">${String(idx + 1).padStart(2, "0")}</span>
           <div>
@@ -679,6 +718,37 @@
         li.onclick = () => selectTrack(item, true);
         ul.appendChild(li);
       });
+    }
+
+    function renderGift(item) {
+      const box = document.getElementById("giftBox");
+      const g = item && item.gift;
+      if (!g) { box.classList.remove("show"); box.innerHTML = ""; return; }
+      const isDe = lang === "de";
+      const label = isDe ? (g.label_de || "BESONDERES GESCHENK") : (g.label_en || "SPECIAL GIFT");
+      const lead = isDe ? g.lead_de : g.lead_en;
+      const paras = (isDe ? g.story_de : g.story_en) || [];
+      const btnOpen = isDe ? "STORY LESEN" : "READ STORY";
+      const btnClose = isDe ? "SCHLIESSEN" : "CLOSE";
+      const coverHtml = g.cover_url ? `<img class="gift-cover" src="${g.cover_url}" alt="${item.title}">` : "";
+      box.innerHTML = `
+        ${coverHtml}
+        <div class="gift-body">
+          <div class="gift-head">
+            <span>${label}</span>
+            <button type="button" class="gift-toggle" id="giftToggle">${btnOpen}</button>
+          </div>
+          <p class="gift-lead">${lead}</p>
+          <div class="gift-story" id="giftStory">${paras.map(p => `<p>${p}</p>`).join("")}</div>
+        </div>
+      `;
+      const tgl = document.getElementById("giftToggle");
+      const st = document.getElementById("giftStory");
+      tgl.onclick = () => {
+        const open = st.classList.toggle("open");
+        tgl.textContent = open ? btnClose : btnOpen;
+      };
+      box.classList.add("show");
     }
 
     function renderRecipe(item) {
@@ -710,6 +780,7 @@
       document.getElementById("deckMeta").textContent = `${item.genre} · ${item.bpm} BPM · ${item.key}`;
       document.getElementById("deckMood").textContent = lang === "de" ? (item.mood_de || item.mood_en) : (item.mood_en || item.mood_de);
       renderRecipe(item);
+      renderGift(item);
       document.getElementById("dlMp3").href = item.mp3_url || "#";
       document.getElementById("dlWav").href = item.wav_url || "#";
       document.getElementById("ytLink").href = item.youtube_url || "https://www.youtube.com/@quantenbeatz";

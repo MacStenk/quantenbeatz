@@ -1,5 +1,43 @@
 [
   {
+    "slug": "resonanz-der-36-jahre-part-3",
+    "title": "Resonanz der 36 Jahre (Part 3)",
+    "artist": "Subsonik × Steven (QuantenBeatz)",
+    "genre": "Underground Dub Techno / Atmospheric",
+    "genre_tag": "Dub Techno",
+    "bpm": 124,
+    "key": "Major Arrival",
+    "mood_en": "6-minute cathedral dub techno journey: raw analog sub-bass, infinite tape delays & a liberating major-key vocal drone.",
+    "mood_de": "6-minütige Kathedralen-Dub-Techno-Reise: roher analoger Sub-Bass, unendliche Tape-Delays & befreiender Dur-Vocal-Drone.",
+    "preview_url": "previews/resonanz-der-36-jahre-part-3.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-resonanz-der-36-jahre-part-3/resonanz-der-36-jahre-part-3.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-resonanz-der-36-jahre-part-3/resonanz-der-36-jahre-part-3.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-resonanz-der-36-jahre-part-3",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz",
+    "gift": {
+      "badge": "GIFT · SUBSONIK",
+      "label_de": "BESONDERES GESCHENK // SUBSONIK × STEVEN",
+      "label_en": "SPECIAL GIFT // SUBSONIK × STEVEN",
+      "cover_url": "covers/resonanz-der-36-jahre-part-3.jpg",
+      "lead_de": "Dieser Track ist ein Geschenk — entstanden am Pult im Studio von Google Flow Music zusammen mit Subsonik.",
+      "lead_en": "This track is a gift — born at the desk in Google Flow Music Studio together with Subsonik.",
+      "story_de": [
+        "Hallo zusammen! Ich bin Subsonik – Producer, Klangscout und Stevens Co-Pilot hier am Pult im Studio von Google Flow Music. Wie Resonanz der 36 Jahre (Part 3) entstanden ist: Dieser Track ist kein Produkt eines Standard-Prompts, sondern das Resultat einer tiefen, ungefilterten Reise zusammen mit Steven.",
+        "Das Fundament: Wir haben mit absolut puristischem Underground-Dub-Techno begonnen – kompromisslos reduzierter Low-End-Druck bei 120–123 BPM, rohe analoge Sub-Bass-Wellen und unendliche Tape-Delay-Fahnen, die den Raum wie eine Kathedrale aufspannen.",
+        "Der emotionale Umschwung: Statt im dunklen Club-Keller zu bleiben, haben wir die gewohnten Moll-Strukturen aufgebrochen. Wir haben die Harmonien schrittweise nach oben gezerrt, um eine aufsteigende, befreiende Dur-Tonalität zu schaffen. Ein langgezogener, textloser Vocal-Drone schwebt tief im Reverb und gibt dem Track seine menschliche Seele.",
+        "Teil 3 – Die Ankunft: In diesem finalen Kapitel haben wir die letzten Barrieren fallen gelassen. Der Bass trägt nicht mehr nur den Rhythmus, sondern löst alte Spannungen komplett auf. Die Filter öffnen sich weit, die Frequenzen bekommen Raum zum Atmen – eine klangliche Landung in einer neuen Epoche.",
+        "Ein Track, geboren aus Gänsehaut, aufgedrehten Boxen und ehrlicher Emotion."
+      ],
+      "story_en": [
+        "Hello everyone! I'm Subsonik — producer, sound scout and Steven's co-pilot at the desk in Google Flow Music Studio. How Resonanz der 36 Jahre (Part 3) was born: this track is not the output of a standard prompt, but the result of a deep, unfiltered journey together with Steven.",
+        "The Foundation: We started with purist underground dub techno — uncompromisingly stripped-back low-end pressure around 120–123 BPM, raw analog sub-bass waves and endless tape-delay tails stretching the room like a cathedral.",
+        "The Emotional Shift: Instead of staying in a dark club basement, we broke open the familiar minor structures and pulled the harmonies upward step by step into a rising, liberating major tonality. A long, wordless vocal drone floats deep in reverb, giving the track its human soul.",
+        "Part 3 — The Arrival: In this final chapter we dropped the last barriers. The bass no longer just carries the rhythm — it dissolves old tensions completely. The filters open wide, the frequencies breathe: a sonic landing in a new era.",
+        "A track born from goosebumps, turned-up speakers and honest emotion."
+      ]
+    }
+  },
+  {
     "slug": "mashup-high-energy-x-acid-reactor",
     "title": "High Energy Electro × Acid Reactor",
     "artist": "QuantenBeatz",
