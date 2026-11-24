@@ -173,9 +173,9 @@
     .act.solid:hover { opacity: 0.86; }
     .act.done { background: #fff; color: #000; border-color: #fff; }
 
-    /* Monochrome DJ Recipe Card (visible on Mashup items) */
+    /* Monochrome DJ Recipe Card (visible on Mashup items, below controls so Play stays high on mobile) */
     .recipe-box {
-      display: none; text-align: left; margin: 0 auto 18px; max-width: 520px;
+      display: none; text-align: left; margin: 18px auto 0; max-width: 520px;
       border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
       background: rgba(255,255,255,0.025); font-family: var(--mono); font-size: 11px;
     }
@@ -183,16 +183,21 @@
     .recipe-head {
       display: flex; justify-content: space-between; align-items: center; gap: 8px;
       padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);
-      color: var(--fg-dim); letter-spacing: 1.5px; font-size: 10px; text-transform: uppercase;
+      color: var(--fg-dim); letter-spacing: 1.4px; font-size: 10px; text-transform: uppercase;
     }
     .recipe-dl {
       color: #fff; text-decoration: none; border: 1px solid var(--line); border-radius: 999px;
-      padding: 2px 9px; font-size: 10px; letter-spacing: 1.2px; transition: .18s;
+      padding: 3px 10px; font-size: 10px; letter-spacing: 1.2px; transition: .18s;
+      white-space: nowrap; flex-shrink: 0;
     }
     .recipe-dl:hover { background: #fff; color: #000; border-color: #fff; }
     .recipe-row {
       display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
-      padding: 4px 0; line-height: 1.45;
+      padding: 5px 0; line-height: 1.45;
+    }
+    @media (max-width: 560px) {
+      .recipe-row { flex-direction: column; gap: 2px; padding: 6px 0; }
+      .recipe-meta { padding-left: 52px; }
     }
     .recipe-deck { color: var(--fg-dim); font-size: 10px; letter-spacing: 1.4px; margin-right: 6px; }
     .recipe-name { color: #fff; font-weight: 600; }
@@ -317,7 +322,6 @@
           <h1 class="deck-title" id="deckTitle">—</h1>
           <div class="deck-meta" id="deckMeta">—</div>
           <p class="deck-mood" id="deckMood"></p>
-          <div id="recipeBox" class="recipe-box"></div>
 
           <div class="scrub-row">
             <button id="btnPlay" class="play-circle" type="button" aria-label="Play / Pause">▶</button>
@@ -347,6 +351,7 @@
             <button id="btnCredit" class="act" type="button" data-i18n="copyCredit">Copy Credit</button>
             <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
           </div>
+          <div id="recipeBox" class="recipe-box"></div>
         </div>
       </section>
 
