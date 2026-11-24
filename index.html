@@ -122,19 +122,19 @@
     }
     .deck-mood { margin: 0 0 18px; font-size: 13px; color: var(--fg-dim); }
 
-    /* Custom Minimalist Scrubber (No ugly native browser audio bar) */
+    /* Custom Waveform / Spectrum Scrubber */
     .scrub-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .play-circle {
-      width: 40px; height: 40px; border-radius: 50%; border: 1px solid #fff;
+      width: 42px; height: 42px; border-radius: 50%; border: 1px solid #fff;
       background: #fff; color: #000; display: grid; place-items: center;
       font-size: 13px; cursor: pointer; flex: 0 0 auto; transition: .18s;
     }
     .play-circle:hover { transform: scale(1.07); }
     .scrub-track {
-      flex: 1; height: 22px; display: flex; align-items: center; cursor: pointer; position: relative;
+      flex: 1; height: 48px; display: flex; align-items: center; cursor: pointer; position: relative;
+      border-radius: 8px; overflow: hidden;
     }
-    .scrub-bg { width: 100%; height: 2px; background: var(--line); position: relative; }
-    .scrub-fill { height: 100%; width: 0%; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+    #waveCanvas { width: 100%; height: 100%; display: block; }
     .time-txt { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); min-width: 78px; text-align: right; }
 
     .deck-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
@@ -253,8 +253,8 @@
 
           <div class="scrub-row">
             <button id="btnPlay" class="play-circle" type="button" aria-label="Play / Pause">▶</button>
-            <div id="scrubTrack" class="scrub-track">
-              <div class="scrub-bg"><div id="scrubFill" class="scrub-fill"></div></div>
+            <div id="scrubTrack" class="scrub-track" title="Click to seek">
+              <canvas id="waveCanvas" width="640" height="96"></canvas>
             </div>
             <div id="timeTxt" class="time-txt">0:00 / 0:00</div>
           </div>
@@ -345,8 +345,61 @@
     const player = document.getElementById("player");
     const btnPlay = document.getElementById("btnPlay");
     const orbState = document.getElementById("orbState");
-    const scrubFill = document.getElementById("scrubFill");
+    const waveCanvas = document.getElementById("waveCanvas");
+    const wctx = waveCanvas.getContext("2d");
     const timeTxt = document.getElementById("timeTxt");
+    const WAVE_BARS = 84;
+    const waveCache = new Map();
+    let activePeaks = Array.from({ length: WAVE_BARS }, (_, i) => 0.25 + 0.55 * Math.abs(Math.sin(i * 0.28 + 0.7)) * Math.abs(Math.cos(i * 0.11)));
+    let hoverFrac = -1;
+
+    function seededPeaks(slug) {
+      let h = 2166136261;
+      for (let i = 0; i < slug.length; i++) h = Math.imul(h ^ slug.charCodeAt(i), 16777619);
+      return Array.from({ length: WAVE_BARS }, (_, i) => {
+        h = Math.imul(h ^ (i + 17), 16777619);
+        const r = ((h >>> 0) % 1000) / 1000;
+        const env = 0.35 + 0.65 * Math.sin((i / WAVE_BARS) * Math.PI);
+        return Math.max(0.14, Math.min(1, (0.28 + r * 0.72) * env));
+      });
+    }
+
+    async function loadWaveform(item) {
+      if (waveCache.has(item.slug)) {
+        activePeaks = waveCache.get(item.slug);
+        return;
+      }
+      activePeaks = seededPeaks(item.slug);
+      try {
+        const res = await fetch(item.preview_url || item.mp3_url);
+        const buf = await res.arrayBuffer();
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const tmpCtx = new AC();
+        const audioBuf = await tmpCtx.decodeAudioData(buf);
+        const data = audioBuf.getChannelData(0);
+        const block = Math.max(1, Math.floor(data.length / WAVE_BARS));
+        const peaks = [];
+        let maxP = 0.001;
+        for (let i = 0; i < WAVE_BARS; i++) {
+          let sum = 0;
+          const start = i * block;
+          const step = Math.max(1, Math.floor(block / 64));
+          let count = 0;
+          for (let j = 0; j < block; j += step) {
+            const v = data[start + j] || 0;
+            sum += v * v;
+            count++;
+          }
+          const rms = Math.sqrt(sum / Math.max(1, count));
+          peaks.push(rms);
+          if (rms > maxP) maxP = rms;
+        }
+        const norm = peaks.map(v => Math.max(0.12, Math.pow(v / maxP, 0.85)));
+        waveCache.set(item.slug, norm);
+        if (activeTrack && activeTrack.slug === item.slug) activePeaks = norm;
+        tmpCtx.close().catch(() => {});
+      } catch (_) {}
+    }
 
     // Web Audio API Live FFT Analyzer
     let audioCtx = null, analyser = null, freqData = null;
@@ -445,6 +498,7 @@
       if (changed) {
         player.src = item.preview_url || item.mp3_url;
         player.load();
+        loadWaveform(item);
       }
       if (autoPlay) {
         ensureAudioGraph();
@@ -472,16 +526,21 @@
     player.ontimeupdate = () => {
       const cur = player.currentTime || 0;
       const dur = player.duration || 0;
-      scrubFill.style.width = dur > 0 ? `${(cur / dur) * 100}%` : "0%";
       timeTxt.textContent = `${fmt(cur)} / ${fmt(dur)}`;
     };
 
-    document.getElementById("scrubTrack").onclick = (e) => {
+    const scrubEl = document.getElementById("scrubTrack");
+    scrubEl.onclick = (e) => {
       if (!isFinite(player.duration) || player.duration <= 0) return;
       const rect = e.currentTarget.getBoundingClientRect();
       const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       player.currentTime = frac * player.duration;
     };
+    scrubEl.onmousemove = (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      hoverFrac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    };
+    scrubEl.onmouseleave = () => { hoverFrac = -1; };
 
     document.getElementById("btnCredit").onclick = async () => {
       if (!activeTrack) return;
@@ -602,6 +661,49 @@
           octx.fillStyle = "rgba(255,255,255,0.9)";
           octx.beginPath(); octx.arc(x2, y2, 2.5, 0, Math.PI * 2); octx.fill();
         }
+      }
+
+      // 3) Live Waveform & Spectrum Scrubber next to Play Button
+      const wW = waveCanvas.width, wH = waveCanvas.height, wMid = wH / 2;
+      wctx.clearRect(0, 0, wW, wH);
+      const dur = isFinite(player.duration) && player.duration > 0 ? player.duration : 0;
+      const prog = dur > 0 ? Math.max(0, Math.min(1, (player.currentTime || 0) / dur)) : 0;
+      const gap = 2.5;
+      const barW = (wW - gap * (WAVE_BARS - 1)) / WAVE_BARS;
+      const isPlaying = !player.paused && analyser;
+      for (let i = 0; i < WAVE_BARS; i++) {
+        const x = i * (barW + gap);
+        const barFrac = (i + 0.5) / WAVE_BARS;
+        let amp = activePeaks[i] || 0.2;
+        if (isPlaying && freqData) {
+          const bin = Math.floor((i / WAVE_BARS) * Math.min(64, freqData.length));
+          const live = (freqData[bin] || 0) / 255;
+          amp = Math.min(1, amp * (0.78 + live * 0.48));
+        }
+        const h = Math.max(4, amp * (wH - 12));
+        const y = wMid - h / 2;
+        const played = barFrac <= prog;
+        const hovered = hoverFrac >= 0 && barFrac <= hoverFrac && !played;
+        if (played) {
+          wctx.fillStyle = "#ffffff";
+          wctx.shadowColor = "rgba(255,255,255,0.55)";
+          wctx.shadowBlur = 8;
+        } else if (hovered) {
+          wctx.fillStyle = "rgba(255,255,255,0.52)";
+          wctx.shadowBlur = 0;
+        } else {
+          wctx.fillStyle = "rgba(255,255,255,0.22)";
+          wctx.shadowBlur = 0;
+        }
+        wctx.beginPath();
+        wctx.roundRect(x, y, Math.max(2, barW), h, 2);
+        wctx.fill();
+      }
+      wctx.shadowBlur = 0;
+      if (prog > 0) {
+        const px = prog * wW;
+        wctx.fillStyle = "#ffffff";
+        wctx.fillRect(px - 1, 2, 2, wH - 4);
       }
 
       requestAnimationFrame(animate);
