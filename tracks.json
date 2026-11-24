@@ -1,5 +1,21 @@
 [
   {
+    "slug": "acid-reactor",
+    "title": "Acid Reactor",
+    "artist": "QuantenBeatz",
+    "genre": "Hard Acid Techno / Industrial Rave",
+    "genre_tag": "Acid Techno",
+    "bpm": 145,
+    "key": "C minor",
+    "mood_en": "Relentless 145 BPM hard techno kick, screaming 303 acid riffs & pure Berlin rave energy.",
+    "mood_de": "Kompromisslose 145-BPM-Hard-Techno-Kick, schreiende 303-Acid-Lines & pure Berliner Rave-Energie.",
+    "preview_url": "previews/acid-reactor.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-acid-reactor/acid-reactor.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-acid-reactor/acid-reactor.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-acid-reactor",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
     "slug": "neural-override",
     "title": "Neural Override",
     "artist": "QuantenBeatz",
