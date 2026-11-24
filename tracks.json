@@ -1,5 +1,21 @@
 [
   {
+    "slug": "shades-of-darkness",
+    "title": "Shades of Darkness (Extended)",
+    "artist": "QuantenBeatz",
+    "genre": "Melodic Electro / Progressive Trance",
+    "genre_tag": "Melodic Electro",
+    "bpm": 126,
+    "key": "Ab major",
+    "mood_en": "7-minute cinematic electro journey with sparkling synth arps, heavy festival bass drops & celestial breakdowns.",
+    "mood_de": "7-minütige cineastische Electro-Reise mit funkelnden Synth-Arps, wuchtigen Bass-Drops & sphärischen Breakdowns.",
+    "preview_url": "previews/shades-of-darkness.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-shades-of-darkness/shades-of-darkness.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-shades-of-darkness/shades-of-darkness.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-shades-of-darkness",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
     "slug": "acid-reactor",
     "title": "Acid Reactor",
     "artist": "QuantenBeatz",
