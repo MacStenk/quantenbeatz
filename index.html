@@ -642,10 +642,27 @@
     document.getElementById("btnCredit").onclick = async () => {
       if (!activeTrack) return;
       const b = document.getElementById("btnCredit");
-      await navigator.clipboard.writeText(I18N[lang].creditTpl(activeTrack));
-      b.textContent = I18N[lang].copied;
-      b.classList.add("done");
-      setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
+      const text = I18N[lang].creditTpl(activeTrack);
+      let ok = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(text); ok = true; } catch (_) {}
+      }
+      if (!ok) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { ok = document.execCommand("copy"); } catch (_) {}
+        ta.remove();
+      }
+      if (ok) {
+        b.textContent = I18N[lang].copied;
+        b.classList.add("done");
+        setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
+      }
     };
 
     // 1-Click 8-Second Video Sample Recorder (1080x1920 9:16 Reels/Shorts/TikTok)
