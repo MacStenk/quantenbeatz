@@ -263,7 +263,7 @@
     <main class="stage">
       <section class="orb-zone">
         <div class="orb-wrap" id="orbWrap" title="Play / Pause">
-          <canvas id="orbCanvas" width="720" height="720"></canvas>
+          <canvas id="orbCanvas" width="1440" height="1440"></canvas>
           <div class="orb-core">
             <img src="qb-logo.png?v=2" alt="qb">
           </div>
@@ -278,7 +278,7 @@
           <div class="scrub-row">
             <button id="btnPlay" class="play-circle" type="button" aria-label="Play / Pause">▶</button>
             <div id="scrubTrack" class="scrub-track" title="Click to seek">
-              <canvas id="waveCanvas" width="640" height="96"></canvas>
+              <canvas id="waveCanvas" width="1280" height="192"></canvas>
             </div>
             <div id="timeTxt" class="time-txt">0:00 / 0:00</div>
           </div>
@@ -665,6 +665,8 @@
 
     function drawRecFrame() {
       const W = recCanvas.width, H = recCanvas.height;
+      rctx.imageSmoothingEnabled = true;
+      rctx.imageSmoothingQuality = "high";
       rctx.fillStyle = "#000000";
       rctx.fillRect(0, 0, W, H);
 
@@ -734,7 +736,7 @@
       const prevTxt = btnClip.textContent;
       btnClip.classList.add("done");
 
-      const vidStream = recCanvas.captureStream(30);
+      const vidStream = recCanvas.captureStream(60);
       const tracks = [...vidStream.getVideoTracks()];
       if (recDest && recDest.stream) {
         tracks.push(...recDest.stream.getAudioTracks());
@@ -742,7 +744,9 @@
       const combined = new MediaStream(tracks);
 
       const candidates = [
-        { mime: "video/mp4;codecs=avc1.42E01E,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.64002A,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.640028,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.4D4028,mp4a.40.2", ext: "mp4" },
         { mime: "video/mp4", ext: "mp4" },
         { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
         { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
@@ -754,9 +758,12 @@
       }
 
       const chunks = [];
-      const rec = chosen.mime
-        ? new MediaRecorder(combined, { mimeType: chosen.mime, videoBitsPerSecond: 4500000 })
-        : new MediaRecorder(combined);
+      const recOpts = {
+        videoBitsPerSecond: 16000000,
+        audioBitsPerSecond: 256000
+      };
+      if (chosen.mime) recOpts.mimeType = chosen.mime;
+      const rec = new MediaRecorder(combined, recOpts);
 
       rec.ondataavailable = (ev) => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
       rec.onstop = () => {
@@ -867,12 +874,13 @@
         sctx.beginPath(); sctx.arc(x, y, st.sz * (0.6 + st.d), 0, Math.PI * 2); sctx.fill();
       }
 
-      // 2) Quantum Orb Live Spectrum
+      // 2) Quantum Orb Live Spectrum (2x Retina supersampled)
       const W = orb.width, H = orb.height, cx = W / 2, cy = H / 2;
+      const sc = W / 720;
       octx.clearRect(0, 0, W, H);
       rot += 0.004 + bass * 0.012;
 
-      const r0 = 152 + bass * 18;
+      const r0 = (152 + bass * 18) * sc;
       // Subtle radial glow
       const grd = octx.createRadialGradient(cx, cy, r0 * 0.4, cx, cy, r0 * 1.9);
       grd.addColorStop(0, `rgba(255,255,255,${(0.06 + bass * 0.14).toFixed(3)})`);
@@ -882,7 +890,7 @@
 
       // Main ring (clean inner space for logo, no inner crescent arcs)
       octx.strokeStyle = `rgba(255,255,255,${(0.45 + bass * 0.55).toFixed(3)})`;
-      octx.lineWidth = 2.5;
+      octx.lineWidth = 2.5 * sc;
       octx.beginPath(); octx.arc(cx, cy, r0, 0, Math.PI * 2); octx.stroke();
 
       // 96 radial needles (idle breath or real live FFT)
@@ -895,26 +903,27 @@
           const idx = i < 48 ? i : (95 - i);
           amp = Math.pow((freqData[(idx * 2) % freqData.length] || 0) / 255, 1.15);
         }
-        const len = 8 + amp * 135;
-        const x1 = cx + Math.cos(ang) * (r0 + 8);
-        const y1 = cy + Math.sin(ang) * (r0 + 8);
-        const x2 = cx + Math.cos(ang) * (r0 + 8 + len);
-        const y2 = cy + Math.sin(ang) * (r0 + 8 + len);
+        const len = (8 + amp * 135) * sc;
+        const x1 = cx + Math.cos(ang) * (r0 + 8 * sc);
+        const y1 = cy + Math.sin(ang) * (r0 + 8 * sc);
+        const x2 = cx + Math.cos(ang) * (r0 + 8 * sc + len);
+        const y2 = cy + Math.sin(ang) * (r0 + 8 * sc + len);
         octx.strokeStyle = `rgba(255,255,255,${(0.28 + amp * 0.72).toFixed(3)})`;
-        octx.lineWidth = 2.4;
+        octx.lineWidth = 2.4 * sc;
         octx.beginPath(); octx.moveTo(x1, y1); octx.lineTo(x2, y2); octx.stroke();
         if (amp > 0.55) {
           octx.fillStyle = "rgba(255,255,255,0.9)";
-          octx.beginPath(); octx.arc(x2, y2, 2.5, 0, Math.PI * 2); octx.fill();
+          octx.beginPath(); octx.arc(x2, y2, 2.5 * sc, 0, Math.PI * 2); octx.fill();
         }
       }
 
-      // 3) Live Waveform & Spectrum Scrubber next to Play Button
+      // 3) Live Waveform & Spectrum Scrubber next to Play Button (2x Retina)
       const wW = waveCanvas.width, wH = waveCanvas.height, wMid = wH / 2;
+      const wSc = wW / 640;
       wctx.clearRect(0, 0, wW, wH);
       const dur = isFinite(player.duration) && player.duration > 0 ? player.duration : 0;
       const prog = dur > 0 ? Math.max(0, Math.min(1, (player.currentTime || 0) / dur)) : 0;
-      const gap = 2.5;
+      const gap = 2.5 * wSc;
       const barW = (wW - gap * (WAVE_BARS - 1)) / WAVE_BARS;
       const isPlaying = !player.paused && analyser;
       for (let i = 0; i < WAVE_BARS; i++) {
@@ -926,14 +935,14 @@
           const live = (freqData[bin] || 0) / 255;
           amp = Math.min(1, amp * (0.78 + live * 0.48));
         }
-        const h = Math.max(4, amp * (wH - 12));
+        const h = Math.max(4 * wSc, amp * (wH - 12 * wSc));
         const y = wMid - h / 2;
         const played = barFrac <= prog;
         const hovered = hoverFrac >= 0 && barFrac <= hoverFrac && !played;
         if (played) {
           wctx.fillStyle = "#ffffff";
           wctx.shadowColor = "rgba(255,255,255,0.55)";
-          wctx.shadowBlur = 8;
+          wctx.shadowBlur = 8 * wSc;
         } else if (hovered) {
           wctx.fillStyle = "rgba(255,255,255,0.52)";
           wctx.shadowBlur = 0;
@@ -942,14 +951,14 @@
           wctx.shadowBlur = 0;
         }
         wctx.beginPath();
-        wctx.roundRect(x, y, Math.max(2, barW), h, 2);
+        wctx.roundRect(x, y, Math.max(2 * wSc, barW), h, 2 * wSc);
         wctx.fill();
       }
       wctx.shadowBlur = 0;
       if (prog > 0) {
         const px = prog * wW;
         wctx.fillStyle = "#ffffff";
-        wctx.fillRect(px - 1, 2, 2, wH - 4);
+        wctx.fillRect(px - 1 * wSc, 2 * wSc, 2 * wSc, wH - 4 * wSc);
       }
 
       if (isRecordingClip) drawRecFrame();
