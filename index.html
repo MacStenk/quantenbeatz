@@ -1159,6 +1159,7 @@
     };
 
     const btnFullRec = document.getElementById("btnFullRec");
+    let lastFullRecUrl = null;
     function stopFullRec() {
       if (fullRecTimer) { clearInterval(fullRecTimer); fullRecTimer = null; }
       if (activeFullRec && activeFullRec.state !== "inactive") {
@@ -1169,6 +1170,40 @@
     btnFullRec.onclick = async () => {
       if (isFullRecMode) { stopFullRec(); return; }
       if (isRecordingClip || !activeTrack) return;
+
+      const recSlug = activeTrack.slug || "quantenbeatz";
+      const candidates = [
+        { mime: "video/mp4;codecs=avc1.64002A,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.640028,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4;codecs=avc1.4D4028,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4", ext: "mp4" },
+        { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+        { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+        { mime: "video/webm", ext: "webm" }
+      ];
+      let chosen = { mime: "", ext: "webm" };
+      for (const c of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(c.mime)) { chosen = c; break; }
+      }
+
+      // Direkt auf Festplatte streamen (verhindert RAM-/Blob-Abbruch bei langen Tracks)
+      let fileWritable = null;
+      if (typeof window.showSaveFilePicker === "function") {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: `${recSlug}-full.${chosen.ext}`,
+            types: [{
+              description: chosen.ext === "mp4" ? "MP4 Video" : "WebM Video",
+              accept: { [chosen.ext === "mp4" ? "video/mp4" : "video/webm"]: [`.${chosen.ext}`] }
+            }]
+          });
+          fileWritable = await handle.createWritable();
+        } catch (err) {
+          if (err && err.name === "AbortError") return; // Nutzer hat Dialog abgebrochen
+          fileWritable = null; // Fallback auf Blob-Download
+        }
+      }
+
       ensureAudioGraph();
       if (gaplessPlaying) stopGapless();
       player.currentTime = 0;
@@ -1186,22 +1221,9 @@
       }
       const combined = new MediaStream(tracks);
 
-      const candidates = [
-        { mime: "video/mp4;codecs=avc1.64002A,mp4a.40.2", ext: "mp4" },
-        { mime: "video/mp4;codecs=avc1.640028,mp4a.40.2", ext: "mp4" },
-        { mime: "video/mp4;codecs=avc1.4D4028,mp4a.40.2", ext: "mp4" },
-        { mime: "video/mp4", ext: "mp4" },
-        { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
-        { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
-        { mime: "video/webm", ext: "webm" }
-      ];
-      let chosen = { mime: "", ext: "webm" };
-      for (const c of candidates) {
-        if (window.MediaRecorder && MediaRecorder.isTypeSupported(c.mime)) { chosen = c; break; }
-      }
-
       const chunks = [];
-      const recOpts = { videoBitsPerSecond: 14000000, audioBitsPerSecond: 256000 };
+      let writeChain = Promise.resolve();
+      const recOpts = { videoBitsPerSecond: 8000000, audioBitsPerSecond: 256000 };
       if (chosen.mime) recOpts.mimeType = chosen.mime;
       const rec = new MediaRecorder(combined, recOpts);
       activeFullRec = rec;
@@ -1209,24 +1231,48 @@
       const onEnded = () => { stopFullRec(); };
       player.addEventListener("ended", onEnded, { once: true });
 
-      rec.ondataavailable = (ev) => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
-      rec.onstop = () => {
+      rec.ondataavailable = (ev) => {
+        if (!ev.data || ev.data.size === 0) return;
+        if (fileWritable) {
+          const chunk = ev.data;
+          writeChain = writeChain.then(() => fileWritable.write(chunk)).catch(() => {});
+        } else {
+          chunks.push(ev.data);
+        }
+      };
+
+      rec.onstop = async () => {
         player.removeEventListener("ended", onEnded);
         if (fullRecTimer) { clearInterval(fullRecTimer); fullRecTimer = null; }
         isRecordingClip = false;
         isFullRecMode = false;
         activeFullRec = null;
-        btnFullRec.textContent = prevTxt;
-        btnFullRec.classList.remove("done");
+        btnFullRec.textContent = lang === "de" ? "SPEICHERE…" : "SAVING…";
+
+        if (fileWritable) {
+          try {
+            await writeChain;
+            await fileWritable.close();
+          } catch (_) {}
+          btnFullRec.textContent = prevTxt;
+          btnFullRec.classList.remove("done");
+          return;
+        }
+
+        if (lastFullRecUrl) {
+          try { URL.revokeObjectURL(lastFullRecUrl); } catch (_) {}
+        }
         const blob = new Blob(chunks, { type: chosen.mime || "video/webm" });
         const url = URL.createObjectURL(blob);
+        lastFullRecUrl = url;
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${activeTrack.slug}-full.${chosen.ext}`;
+        a.download = `${recSlug}-full.${chosen.ext}`;
         document.body.appendChild(a);
         a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 6000);
+        setTimeout(() => a.remove(), 2000);
+        btnFullRec.textContent = prevTxt;
+        btnFullRec.classList.remove("done");
       };
 
       recStartMs = performance.now();
@@ -1236,7 +1282,7 @@
       }
 
       drawRecFrame();
-      rec.start(500);
+      rec.start(1000);
       btnFullRec.textContent = "■ STOP 0:00";
       fullRecTimer = setInterval(() => {
         const sec = Math.floor((performance.now() - recStartMs) / 1000);
