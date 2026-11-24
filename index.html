@@ -352,7 +352,10 @@
         licP2: "Simply click \"Copy Credit\" on any track and paste the attribution line into your video description. Direct MP3 (320k) and lossless WAV downloads with zero ads.",
         playing: "ACTIVE // LIVE",
         paused: "STANDBY // PLAY",
-        creditTpl: (t) => `Music: "${t.title}" by ${t.artist}\nFree Download (MP3 & WAV, CC BY 4.0): https://quantenbeatz.com/`
+        creditTpl: (t) => {
+          const gTag = (t.genre_tag || "electronic").toLowerCase().replace(/[^a-z0-9]/g, "");
+          return `Music: "${t.title}" by ${t.artist}\nGenre: ${t.genre} | ${t.bpm} BPM | ${t.key}\nMood: ${t.mood_en || t.mood_de || ""}\nLicense: Free for Creators (CC BY 4.0, No Copyright / No Content ID)\nFree Download (MP3 320k & WAV): https://quantenbeatz.com/\n\n#quantenbeatz #nocopyrightmusic #royaltyfreemusic #${gTag} #shorts`;
+        }
       },
       de: {
         tagline: "LIZENZFREIE SOUNDBIBLIOTHEK · CC BY 4.0",
@@ -369,7 +372,10 @@
         licP2: "Klick einfach auf „Credit kopieren“ und füge die Zeile in deine Videobeschreibung ein. Direkte MP3- (320k) und WAV-Downloads ohne Werbung.",
         playing: "AKTIV // LIVE",
         paused: "BEREIT // PLAY",
-        creditTpl: (t) => `Musik: „${t.title}“ von ${t.artist}\nKostenloser Download (MP3 & WAV, CC BY 4.0): https://quantenbeatz.com/`
+        creditTpl: (t) => {
+          const gTag = (t.genre_tag || "electronic").toLowerCase().replace(/[^a-z0-9]/g, "");
+          return `Music: "${t.title}" by ${t.artist}\nGenre: ${t.genre} | ${t.bpm} BPM | ${t.key}\nMood: ${t.mood_en || t.mood_de || ""}\nLicense: Free for Creators (CC BY 4.0, No Copyright / No Content ID)\nFree Download (MP3 320k & WAV): https://quantenbeatz.com/\n\n#quantenbeatz #nocopyrightmusic #royaltyfreemusic #${gTag} #shorts`;
+        }
       }
     };
 
