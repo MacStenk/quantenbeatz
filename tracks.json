@@ -94,5 +94,37 @@
     "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-cipher-pulse/cipher-pulse.wav",
     "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-cipher-pulse",
     "youtube_url": "https://youtu.be/ywId3MQzekU"
+  },
+  {
+    "slug": "deep-horizon-intro-score",
+    "title": "Deep Horizon (Intro Score)",
+    "artist": "QuantenBeatz",
+    "genre": "Cinematic Ambient / Sci-Fi Score",
+    "genre_tag": "Ambient Score",
+    "bpm": 90,
+    "key": "D minor",
+    "mood_en": "Deep atmospheric synth pads & cinematic tension — ideal for AI & science documentary intros.",
+    "mood_de": "Tiefe atmosphärische Synth-Flächen & ruhige Kino-Spannung für KI- und Wissens-Dokus.",
+    "preview_url": "previews/deep-horizon-intro-score.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-deep-horizon-intro-score/deep-horizon-intro-score.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-deep-horizon-intro-score/deep-horizon-intro-score.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-deep-horizon-intro-score",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
+    "slug": "echoes-of-humanity",
+    "title": "Echoes of Humanity",
+    "artist": "QuantenBeatz",
+    "genre": "Cinematic Ambient / Emotional Documentary",
+    "genre_tag": "Ambient Score",
+    "bpm": 85,
+    "key": "A minor",
+    "mood_en": "Warm, reflective, emotional ambient score for stories about consciousness & humanity.",
+    "mood_de": "Warmer, nachdenklicher Ambient-Score für Geschichten über Bewusstsein und Menschlichkeit.",
+    "preview_url": "previews/echoes-of-humanity.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-echoes-of-humanity/echoes-of-humanity.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-echoes-of-humanity/echoes-of-humanity.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-echoes-of-humanity",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
   }
 ]
