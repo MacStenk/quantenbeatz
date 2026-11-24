@@ -298,6 +298,7 @@
           <div class="deck-actions">
             <a id="dlMp3" class="act solid" href="#" download>MP3 320K</a>
             <a id="dlWav" class="act" href="#" download>WAV</a>
+            <button id="btnClip" class="act" type="button" title="Record 8s Video Sample with Audio">● 8S CLIP</button>
             <button id="btnCredit" class="act" type="button" data-i18n="copyCredit">Copy Credit</button>
             <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
           </div>
@@ -437,8 +438,8 @@
       } catch (_) {}
     }
 
-    // Web Audio API Live FFT Analyzer
-    let audioCtx = null, analyser = null, freqData = null;
+    // Web Audio API Live FFT Analyzer + Recorder Tap
+    let audioCtx = null, analyser = null, freqData = null, recDest = null;
     function ensureAudioGraph() {
       if (audioCtx) {
         if (audioCtx.state === "suspended") audioCtx.resume();
@@ -449,8 +450,10 @@
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyser.smoothingTimeConstant = 0.82;
+      recDest = audioCtx.createMediaStreamDestination();
       src.connect(analyser);
       analyser.connect(audioCtx.destination);
+      analyser.connect(recDest);
       freqData = new Uint8Array(analyser.frequencyBinCount);
     }
 
@@ -642,6 +645,131 @@
       setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
     };
 
+    // 1-Click 8-Second Video Sample Recorder (Orb + Logo + Title + Waveform + Live Audio)
+    const btnClip = document.getElementById("btnClip");
+    const recCanvas = document.createElement("canvas");
+    recCanvas.width = 1080;
+    recCanvas.height = 1350;
+    const rctx = recCanvas.getContext("2d");
+    const logoImg = new Image();
+    logoImg.crossOrigin = "anonymous";
+    logoImg.src = "qb-logo.png?v=2";
+    let isRecordingClip = false;
+
+    function drawRecFrame() {
+      const W = recCanvas.width, H = recCanvas.height;
+      rctx.fillStyle = "#000000";
+      rctx.fillRect(0, 0, W, H);
+
+      // Draw orbital canvas centered in upper half
+      const orbSize = 720;
+      rctx.drawImage(orb, (W - orbSize) / 2, 70, orbSize, orbSize);
+
+      // Draw transparent qb-logo centered inside orb
+      if (logoImg.complete && logoImg.naturalWidth) {
+        const lw = 210, lh = lw * (logoImg.naturalHeight / logoImg.naturalWidth);
+        rctx.drawImage(logoImg, (W - lw) / 2, 70 + (orbSize - lh) / 2, lw, lh);
+      }
+
+      // Status + Title + Meta
+      rctx.textAlign = "center";
+      rctx.fillStyle = "rgba(255,255,255,0.58)";
+      rctx.font = "600 22px 'JetBrains Mono', monospace";
+      rctx.fillText(orbState.textContent || "AKTIV // LIVE", W / 2, 835);
+
+      rctx.fillStyle = "#ffffff";
+      rctx.font = "700 46px 'Space Grotesk', sans-serif";
+      const titleTxt = (activeTrack ? activeTrack.title : "QUANTENBEATZ").toUpperCase();
+      rctx.fillText(titleTxt, W / 2, 910, W - 120);
+
+      rctx.fillStyle = "rgba(255,255,255,0.58)";
+      rctx.font = "500 22px 'JetBrains Mono', monospace";
+      const metaTxt = activeTrack ? `${activeTrack.genre} · ${activeTrack.bpm} BPM · ${activeTrack.key}`.toUpperCase() : "";
+      rctx.fillText(metaTxt, W / 2, 962, W - 120);
+
+      // Live Waveform Scrubber
+      rctx.drawImage(waveCanvas, 90, 1025, W - 180, 128);
+
+      // Crisp Brand Footer with Link
+      rctx.strokeStyle = "rgba(255,255,255,0.16)";
+      rctx.lineWidth = 1.5;
+      rctx.beginPath(); rctx.moveTo(140, 1208); rctx.lineTo(W - 140, 1208); rctx.stroke();
+
+      rctx.fillStyle = "#ffffff";
+      rctx.font = "600 26px 'JetBrains Mono', monospace";
+      rctx.fillText("macstenk.github.io/quantenbeatz", W / 2, 1256);
+
+      rctx.fillStyle = "rgba(255,255,255,0.48)";
+      rctx.font = "500 19px 'JetBrains Mono', monospace";
+      rctx.fillText("FREE SOUND LIBRARY · @QUANTENBEATZ · CC BY 4.0", W / 2, 1294);
+    }
+
+    btnClip.onclick = async () => {
+      if (isRecordingClip || !activeTrack) return;
+      ensureAudioGraph();
+      if (player.paused) {
+        try { await player.play(); } catch (_) {}
+      }
+      isRecordingClip = true;
+      const prevTxt = btnClip.textContent;
+      btnClip.classList.add("done");
+
+      const vidStream = recCanvas.captureStream(30);
+      const tracks = [...vidStream.getVideoTracks()];
+      if (recDest && recDest.stream) {
+        tracks.push(...recDest.stream.getAudioTracks());
+      }
+      const combined = new MediaStream(tracks);
+
+      const candidates = [
+        { mime: "video/mp4;codecs=avc1.42E01E,mp4a.40.2", ext: "mp4" },
+        { mime: "video/mp4", ext: "mp4" },
+        { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+        { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+        { mime: "video/webm", ext: "webm" }
+      ];
+      let chosen = { mime: "", ext: "webm" };
+      for (const c of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(c.mime)) { chosen = c; break; }
+      }
+
+      const chunks = [];
+      const rec = chosen.mime
+        ? new MediaRecorder(combined, { mimeType: chosen.mime, videoBitsPerSecond: 4500000 })
+        : new MediaRecorder(combined);
+
+      rec.ondataavailable = (ev) => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
+      rec.onstop = () => {
+        isRecordingClip = false;
+        btnClip.textContent = prevTxt;
+        btnClip.classList.remove("done");
+        const blob = new Blob(chunks, { type: chosen.mime || "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${activeTrack.slug}-8s-clip.${chosen.ext}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      };
+
+      drawRecFrame();
+      rec.start(200);
+
+      let left = 8;
+      btnClip.textContent = `● REC ${left}S`;
+      const timer = setInterval(() => {
+        left--;
+        if (left > 0) {
+          btnClip.textContent = `● REC ${left}S`;
+        } else {
+          clearInterval(timer);
+          if (rec.state !== "inactive") rec.stop();
+        }
+      }, 1000);
+    };
+
     document.getElementById("btnFilter").onclick = () => {
       const dr = document.getElementById("drawer");
       dr.classList.toggle("open");
@@ -796,6 +924,8 @@
         wctx.fillStyle = "#ffffff";
         wctx.fillRect(px - 1, 2, 2, wH - 4);
       }
+
+      if (isRecordingClip) drawRecFrame();
 
       requestAnimationFrame(animate);
     }
