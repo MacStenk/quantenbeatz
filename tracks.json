@@ -1,5 +1,21 @@
 [
   {
+    "slug": "neural-override",
+    "title": "Neural Override",
+    "artist": "QuantenBeatz",
+    "genre": "Psy-Techno / Peak-Time Acid",
+    "genre_tag": "Acid Techno",
+    "bpm": 128,
+    "key": "C minor",
+    "mood_en": "Rolling psy-techno bassline, hypnotic 303 acid squelches & explosive peak-time drops.",
+    "mood_de": "Rollende Psy-Techno-Bassline, hypnotische 303-Acid-Lines & explosive Peak-Time-Drops.",
+    "preview_url": "previews/neural-override.mp3",
+    "mp3_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-neural-override/neural-override.mp3",
+    "wav_url": "https://github.com/MacStenk/quantenbeatz/releases/download/track-neural-override/neural-override.wav",
+    "release_url": "https://github.com/MacStenk/quantenbeatz/releases/tag/track-neural-override",
+    "youtube_url": "https://www.youtube.com/@quantenbeatz"
+  },
+  {
     "slug": "reward-hack-intro",
     "title": "Reward Hack Intro",
     "artist": "QuantenBeatz",
