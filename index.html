@@ -489,8 +489,11 @@
       } catch (_) {}
     }
 
-    // Web Audio API Live FFT Analyzer + Recorder Tap (with independent Gain for smooth Fade-In/Out)
-    let audioCtx = null, analyser = null, freqData = null, recDest = null, recGain = null;
+    // Web Audio API Live FFT Analyzer + Recorder Tap + Sample-Accurate Gapless Loop Engine (0.0ms gap on iOS/Desktop)
+    let audioCtx = null, analyser = null, freqData = null, recDest = null, recGain = null, loopGain = null;
+    const loopBufCache = new Map();
+    let gaplessSrc = null, gaplessBuf = null, gaplessPlaying = false, gaplessStartAt = 0, gaplessOffset = 0;
+
     function ensureAudioGraph() {
       if (audioCtx) {
         if (audioCtx.state === "suspended") audioCtx.resume();
@@ -501,14 +504,90 @@
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
       analyser.smoothingTimeConstant = 0.82;
+      loopGain = audioCtx.createGain();
+      loopGain.gain.value = player.muted ? 0 : player.volume;
       recGain = audioCtx.createGain();
       recGain.gain.value = 1.0;
       recDest = audioCtx.createMediaStreamDestination();
       src.connect(analyser);
+      loopGain.connect(analyser);
       analyser.connect(audioCtx.destination);
       analyser.connect(recGain);
       recGain.connect(recDest);
       freqData = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    function trimAudioBuffer(ctx, buf) {
+      const ch0 = buf.getChannelData(0);
+      const thr = 0.002;
+      let start = 0, end = ch0.length - 1;
+      while (start < ch0.length && Math.abs(ch0[start]) < thr) start++;
+      while (end > start && Math.abs(ch0[end]) < thr) end--;
+      const len = Math.max(1, end - start + 1);
+      if (start === 0 && len === ch0.length) return buf;
+      const out = ctx.createBuffer(buf.numberOfChannels, len, buf.sampleRate);
+      for (let c = 0; c < buf.numberOfChannels; c++) {
+        out.copyToChannel(buf.getChannelData(c).subarray(start, start + len), c);
+      }
+      return out;
+    }
+
+    async function getGaplessBuffer(item) {
+      ensureAudioGraph();
+      if (loopBufCache.has(item.slug)) return loopBufCache.get(item.slug);
+      const res = await fetch(item.preview_url || item.mp3_url);
+      const arr = await res.arrayBuffer();
+      const raw = await audioCtx.decodeAudioData(arr);
+      const trimmed = trimAudioBuffer(audioCtx, raw);
+      loopBufCache.set(item.slug, trimmed);
+      return trimmed;
+    }
+
+    function stopGapless(resetOffset) {
+      if (gaplessSrc) {
+        if (gaplessPlaying && gaplessBuf && audioCtx) {
+          gaplessOffset = (audioCtx.currentTime - gaplessStartAt) % gaplessBuf.duration;
+        }
+        try { gaplessSrc.stop(); } catch (_) {}
+        try { gaplessSrc.disconnect(); } catch (_) {}
+        gaplessSrc = null;
+      }
+      gaplessPlaying = false;
+      if (resetOffset) gaplessOffset = 0;
+    }
+
+    async function startGapless(item, offsetSec) {
+      ensureAudioGraph();
+      if (audioCtx.state === "suspended") await audioCtx.resume();
+      player.pause();
+      stopGapless(false);
+      const buf = await getGaplessBuffer(item);
+      if (!activeTrack || activeTrack.slug !== item.slug) return;
+      gaplessBuf = buf;
+      const off = ((offsetSec !== undefined ? offsetSec : gaplessOffset) % buf.duration + buf.duration) % buf.duration;
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      src.connect(loopGain);
+      src.start(0, off);
+      gaplessSrc = src;
+      gaplessStartAt = audioCtx.currentTime - off;
+      gaplessPlaying = true;
+      btnPlay.textContent = "❚❚";
+      orbState.textContent = I18N[lang].playing;
+    }
+
+    function isAudioPlaying() { return gaplessPlaying || !player.paused; }
+    function getPlayDur() {
+      if (gaplessBuf && activeTrack && activeTrack.mashup && isLoopOn) return gaplessBuf.duration;
+      return isFinite(player.duration) && player.duration > 0 ? player.duration : 0;
+    }
+    function getPlayTime() {
+      if (gaplessPlaying && gaplessBuf && audioCtx) {
+        return ((audioCtx.currentTime - gaplessStartAt) % gaplessBuf.duration + gaplessBuf.duration) % gaplessBuf.duration;
+      }
+      if (gaplessBuf && activeTrack && activeTrack.mashup && isLoopOn) return gaplessOffset;
+      return player.currentTime || 0;
     }
 
     function fmt(s) {
@@ -636,7 +715,11 @@
     function selectTrack(item, autoPlay) {
       const changed = !activeTrack || activeTrack.slug !== item.slug;
       activeTrack = item;
-      if (changed) setLoop(!!item.mashup);
+      if (changed) {
+        stopGapless(true);
+        gaplessBuf = null;
+        setLoop(!!item.mashup);
+      }
       updateDeck(item);
       renderList();
       if (changed) {
@@ -646,14 +729,36 @@
       }
       if (autoPlay) {
         ensureAudioGraph();
-        if (!changed && !player.paused) { player.pause(); }
-        else { player.play().catch(() => {}); }
+        if (item.mashup && isLoopOn) {
+          if (!changed && gaplessPlaying) {
+            stopGapless(false);
+            btnPlay.textContent = "▶";
+            orbState.textContent = I18N[lang].paused;
+          } else {
+            startGapless(item).catch(() => {});
+          }
+        } else {
+          stopGapless(false);
+          if (!changed && !player.paused) { player.pause(); }
+          else { player.play().catch(() => {}); }
+        }
       }
     }
 
     function togglePlay() {
       if (!activeTrack && allTracks.length) { selectTrack(allTracks[0], true); return; }
       ensureAudioGraph();
+      if (activeTrack && activeTrack.mashup && isLoopOn) {
+        if (gaplessPlaying) {
+          stopGapless(false);
+          btnPlay.textContent = "▶";
+          orbState.textContent = I18N[lang].paused;
+        } else {
+          startGapless(activeTrack).catch(() => {});
+        }
+        return;
+      }
+      stopGapless(false);
       if (player.paused) player.play().catch(() => {});
       else player.pause();
     }
@@ -675,10 +780,17 @@
 
     const scrubEl = document.getElementById("scrubTrack");
     scrubEl.onclick = (e) => {
-      if (!isFinite(player.duration) || player.duration <= 0) return;
+      const dur = getPlayDur();
+      if (!isFinite(dur) || dur <= 0) return;
       const rect = e.currentTarget.getBoundingClientRect();
       const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      player.currentTime = frac * player.duration;
+      const target = frac * dur;
+      if (activeTrack && activeTrack.mashup && isLoopOn) {
+        gaplessOffset = target;
+        if (gaplessPlaying) startGapless(activeTrack, target).catch(() => {});
+      } else {
+        player.currentTime = target;
+      }
     };
     scrubEl.onmousemove = (e) => {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -709,6 +821,7 @@
       const clamped = Math.max(0, Math.min(1, v));
       player.volume = clamped;
       player.muted = clamped === 0;
+      if (loopGain && audioCtx) loopGain.gain.setValueAtTime(clamped, audioCtx.currentTime);
       if (clamped > 0.02) lastNonZeroVol = clamped;
       try { localStorage.setItem("qb_vol", String(clamped)); } catch (_) {}
       const lit = Math.round(clamped * VOL_STEPS);
@@ -776,6 +889,16 @@
       if (btnLoop) {
         btnLoop.classList.toggle("done", isLoopOn);
         btnLoop.textContent = isLoopOn ? (lang === "de" ? "↻ LOOP AN" : "↻ LOOP ON") : "↻ LOOP";
+      }
+      if (!isLoopOn && gaplessPlaying && activeTrack) {
+        const cur = getPlayTime();
+        stopGapless(false);
+        player.currentTime = cur;
+        player.play().catch(() => {});
+      } else if (isLoopOn && !player.paused && activeTrack && activeTrack.mashup) {
+        const cur = player.currentTime || 0;
+        player.pause();
+        startGapless(activeTrack, cur).catch(() => {});
       }
     }
     btnLoop.onclick = () => setLoop(!isLoopOn);
@@ -864,8 +987,12 @@
     btnClip.onclick = async () => {
       if (isRecordingClip || !activeTrack) return;
       ensureAudioGraph();
-      if (player.paused) {
-        try { await player.play(); } catch (_) {}
+      if (!isAudioPlaying()) {
+        if (activeTrack.mashup && isLoopOn) {
+          try { await startGapless(activeTrack); } catch (_) {}
+        } else {
+          try { await player.play(); } catch (_) {}
+        }
       }
       isRecordingClip = true;
       const prevTxt = btnClip.textContent;
@@ -993,7 +1120,8 @@
     let rot = 0;
     function animate() {
       let bass = 0;
-      if (analyser && !player.paused) {
+      const playingNow = isAudioPlaying();
+      if (analyser && playingNow) {
         analyser.getByteFrequencyData(freqData);
         let sum = 0;
         for (let i = 0; i < 10; i++) sum += freqData[i];
@@ -1033,7 +1161,7 @@
       for (let i = 0; i < bars; i++) {
         const ang = (i / bars) * Math.PI * 2 - Math.PI / 2;
         let amp = 0.08 + 0.05 * Math.sin(tNow * 2 + i * 0.25);
-        if (analyser && !player.paused && freqData) {
+        if (analyser && playingNow && freqData) {
           const idx = i < 48 ? i : (95 - i);
           amp = Math.pow((freqData[(idx * 2) % freqData.length] || 0) / 255, 1.15);
         }
@@ -1055,11 +1183,13 @@
       const wW = waveCanvas.width, wH = waveCanvas.height, wMid = wH / 2;
       const wSc = wW / 640;
       wctx.clearRect(0, 0, wW, wH);
-      const dur = isFinite(player.duration) && player.duration > 0 ? player.duration : 0;
-      const prog = dur > 0 ? Math.max(0, Math.min(1, (player.currentTime || 0) / dur)) : 0;
+      const dur = getPlayDur();
+      const curT = getPlayTime();
+      const prog = dur > 0 ? Math.max(0, Math.min(1, curT / dur)) : 0;
+      if (gaplessPlaying && dur > 0) timeTxt.textContent = `${fmt(curT)} / ${fmt(dur)}`;
       const gap = 2.5 * wSc;
       const barW = (wW - gap * (WAVE_BARS - 1)) / WAVE_BARS;
-      const isPlaying = !player.paused && analyser;
+      const isPlaying = playingNow && analyser;
       for (let i = 0; i < WAVE_BARS; i++) {
         const x = i * (barW + gap);
         const barFrac = (i + 0.5) / WAVE_BARS;
