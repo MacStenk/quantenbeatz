@@ -383,6 +383,7 @@
             <button id="btnClip" class="act" type="button" title="Record 8s Video Sample with Audio">● 8S CLIP</button>
             <button id="btnFullRec" class="act" type="button" title="Record Full Track Video (from 0:00 until end or Stop)">● FULL REC</button>
             <button id="btnCredit" class="act" type="button" data-i18n="copyCredit">Copy Credit</button>
+            <button id="btnShare" class="act" type="button" data-i18n="copyLink">Copy Link</button>
             <a id="ytLink" class="act" href="https://www.youtube.com/@quantenbeatz" target="_blank" rel="noopener">YouTube</a>
           </div>
           <div id="recipeBox" class="recipe-box"></div>
@@ -428,6 +429,7 @@
         search: "Search track, genre, BPM...",
         all: "All",
         copyCredit: "Copy Credit",
+        copyLink: "Copy Link",
         copied: "Copied ✓",
         indexLabel: "SIGNAL ARCHIVE",
         tracks: "TRACKS",
@@ -448,6 +450,7 @@
         search: "Titel, Genre oder BPM suchen...",
         all: "Alle",
         copyCredit: "Credit kopieren",
+        copyLink: "Link kopieren",
         copied: "Kopiert ✓",
         indexLabel: "SIGNAL-ARCHIV",
         tracks: "TRACKS",
@@ -796,6 +799,11 @@
         stopGapless(true);
         gaplessBuf = null;
         setLoop(!!item.mashup);
+        try {
+          if (location.hash !== `#${item.slug}`) {
+            history.replaceState(null, "", `#${item.slug}`);
+          }
+        } catch (_) {}
       }
       updateDeck(item);
       renderList();
@@ -954,6 +962,31 @@
         b.textContent = I18N[lang].copied;
         b.classList.add("done");
         setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
+      }
+    };
+
+    document.getElementById("btnShare").onclick = async () => {
+      if (!activeTrack) return;
+      const b = document.getElementById("btnShare");
+      const url = `${location.origin}${location.pathname}#${activeTrack.slug}`;
+      let ok = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(url); ok = true; } catch (_) {}
+      }
+      if (!ok) {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { ok = document.execCommand("copy"); } catch (_) {}
+        ta.remove();
+      }
+      if (ok) {
+        b.textContent = I18N[lang].copied;
+        b.classList.add("done");
+        setTimeout(() => { b.textContent = I18N[lang].copyLink; b.classList.remove("done"); }, 2000);
       }
     };
 
@@ -1443,12 +1476,28 @@
     }
     requestAnimationFrame(animate);
 
+    function trackFromUrl() {
+      const hashSlug = decodeURIComponent((location.hash || "").replace(/^#/, "")).trim();
+      const paramSlug = new URLSearchParams(location.search).get("track") || "";
+      const slug = hashSlug || paramSlug;
+      if (!slug) return null;
+      return allTracks.find(t => t.slug === slug) || null;
+    }
+
+    window.addEventListener("hashchange", () => {
+      const target = trackFromUrl();
+      if (target && (!activeTrack || activeTrack.slug !== target.slug)) {
+        selectTrack(target, false);
+      }
+    });
+
     fetch("tracks.json")
       .then(r => r.json())
       .then(data => {
         allTracks = data;
         applyLang();
-        if (allTracks.length) selectTrack(allTracks[0], false);
+        const initial = trackFromUrl() || allTracks[0];
+        if (initial) selectTrack(initial, false);
       });
   </script>
 </body>
