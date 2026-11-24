@@ -137,6 +137,30 @@
     #waveCanvas { width: 100%; height: 100%; display: block; }
     .time-txt { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); min-width: 78px; text-align: right; }
 
+    /* Minimalist Hardware Volume Fader (Segmented LED Bars) */
+    .vol-row {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: -4px 0 18px; user-select: none;
+    }
+    .vol-btn {
+      background: transparent; border: none; color: var(--fg-dim); cursor: pointer;
+      display: grid; place-items: center; padding: 4px; transition: color .18s;
+    }
+    .vol-btn:hover { color: #fff; }
+    .vol-bars {
+      display: flex; align-items: flex-end; gap: 3px; height: 18px; cursor: pointer; padding: 2px 4px;
+    }
+    .vol-bar {
+      width: 4px; border-radius: 2px; background: rgba(255,255,255,0.18);
+      transition: background .12s, box-shadow .12s, transform .12s;
+    }
+    .vol-bar.on { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.45); }
+    .vol-bars:hover .vol-bar.on { transform: scaleY(1.08); }
+    .vol-pct {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--fg-dim);
+      min-width: 34px; text-align: left;
+    }
+
     .deck-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
     .act {
       display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
@@ -257,6 +281,18 @@
               <canvas id="waveCanvas" width="640" height="96"></canvas>
             </div>
             <div id="timeTxt" class="time-txt">0:00 / 0:00</div>
+          </div>
+
+          <div class="vol-row" title="Volume (Click, Drag or Scroll)">
+            <button id="btnMute" class="vol-btn" type="button" aria-label="Mute / Unmute">
+              <svg id="volIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+            <div id="volBars" class="vol-bars"></div>
+            <span id="volPct" class="vol-pct">85%</span>
           </div>
 
           <div class="deck-actions">
@@ -541,6 +577,61 @@
       hoverFrac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     };
     scrubEl.onmouseleave = () => { hoverFrac = -1; };
+
+    // Hardware Segmented Volume Control (Click, Drag, Wheel, Mute, localStorage)
+    const volBarsEl = document.getElementById("volBars");
+    const volPctEl = document.getElementById("volPct");
+    const btnMute = document.getElementById("btnMute");
+    const volIcon = document.getElementById("volIcon");
+    const VOL_STEPS = 12;
+    let savedVol = parseFloat(localStorage.getItem("qb_vol"));
+    if (!isFinite(savedVol) || savedVol < 0 || savedVol > 1) savedVol = 0.85;
+    let lastNonZeroVol = savedVol > 0.05 ? savedVol : 0.85;
+
+    const volBarNodes = [];
+    for (let i = 0; i < VOL_STEPS; i++) {
+      const b = document.createElement("span");
+      b.className = "vol-bar";
+      b.style.height = `${5 + Math.round((i / (VOL_STEPS - 1)) * 11)}px`;
+      volBarsEl.appendChild(b);
+      volBarNodes.push(b);
+    }
+
+    function applyVolume(v) {
+      const clamped = Math.max(0, Math.min(1, v));
+      player.volume = clamped;
+      player.muted = clamped === 0;
+      if (clamped > 0.02) lastNonZeroVol = clamped;
+      try { localStorage.setItem("qb_vol", String(clamped)); } catch (_) {}
+      const lit = Math.round(clamped * VOL_STEPS);
+      volBarNodes.forEach((b, idx) => b.classList.toggle("on", idx < lit));
+      volPctEl.textContent = clamped === 0 ? "MUTE" : `${Math.round(clamped * 100)}%`;
+      volIcon.innerHTML = clamped === 0
+        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>'
+        : clamped < 0.5
+          ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>'
+          : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+    }
+
+    let draggingVol = false;
+    function setVolFromClientX(clientX) {
+      const rect = volBarsEl.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      applyVolume(frac);
+    }
+    volBarsEl.addEventListener("pointerdown", (e) => {
+      draggingVol = true;
+      volBarsEl.setPointerCapture(e.pointerId);
+      setVolFromClientX(e.clientX);
+    });
+    volBarsEl.addEventListener("pointermove", (e) => { if (draggingVol) setVolFromClientX(e.clientX); });
+    volBarsEl.addEventListener("pointerup", () => { draggingVol = false; });
+    volBarsEl.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      applyVolume(player.volume + (e.deltaY < 0 ? 0.08 : -0.08));
+    }, { passive: false });
+    btnMute.onclick = () => { applyVolume(player.volume > 0 ? 0 : lastNonZeroVol); };
+    applyVolume(savedVol);
 
     document.getElementById("btnCredit").onclick = async () => {
       if (!activeTrack) return;
