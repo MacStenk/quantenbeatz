@@ -265,7 +265,7 @@
         <div class="orb-wrap" id="orbWrap" title="Play / Pause">
           <canvas id="orbCanvas" width="1440" height="1440"></canvas>
           <div class="orb-core">
-            <img src="qb-logo.png?v=2" alt="qb">
+            <img src="qb-logo.png?v=3" alt="qb">
           </div>
         </div>
         <span class="orb-state" id="orbState">INIT // SELECT</span>
@@ -648,15 +648,15 @@
       setTimeout(() => { b.textContent = I18N[lang].copyCredit; b.classList.remove("done"); }, 2000);
     };
 
-    // 1-Click 8-Second Video Sample Recorder (Orb + Logo + Title + Waveform + Live Audio)
+    // 1-Click 8-Second Video Sample Recorder (1080x1920 9:16 Reels/Shorts/TikTok)
     const btnClip = document.getElementById("btnClip");
     const recCanvas = document.createElement("canvas");
     recCanvas.width = 1080;
-    recCanvas.height = 1350;
+    recCanvas.height = 1920;
     const rctx = recCanvas.getContext("2d");
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
-    logoImg.src = "qb-logo.png?v=2";
+    logoImg.src = "qb-logo.png?v=3";
     let isRecordingClip = false;
     let recStartMs = 0;
     const CLIP_DUR_S = 8.0;
@@ -670,47 +670,48 @@
       rctx.fillStyle = "#000000";
       rctx.fillRect(0, 0, W, H);
 
-      // Draw orbital canvas centered in upper half
-      const orbSize = 720;
-      rctx.drawImage(orb, (W - orbSize) / 2, 70, orbSize, orbSize);
+      // Draw orbital canvas centered in upper half (with Reels/Shorts top safe-zone)
+      const orbSize = 860;
+      const orbY = 210;
+      rctx.drawImage(orb, (W - orbSize) / 2, orbY, orbSize, orbSize);
 
-      // Draw transparent qb-logo centered inside orb
+      // Draw crisp 4x transparent qb-logo centered inside orb
       if (logoImg.complete && logoImg.naturalWidth) {
-        const lw = 210, lh = lw * (logoImg.naturalHeight / logoImg.naturalWidth);
-        rctx.drawImage(logoImg, (W - lw) / 2, 70 + (orbSize - lh) / 2, lw, lh);
+        const lw = 248, lh = lw * (logoImg.naturalHeight / logoImg.naturalWidth);
+        rctx.drawImage(logoImg, (W - lw) / 2, orbY + (orbSize - lh) / 2, lw, lh);
       }
 
       // Status + Title + Meta
       rctx.textAlign = "center";
-      rctx.fillStyle = "rgba(255,255,255,0.58)";
-      rctx.font = "600 22px 'JetBrains Mono', monospace";
-      rctx.fillText(orbState.textContent || "AKTIV // LIVE", W / 2, 835);
+      rctx.fillStyle = "rgba(255,255,255,0.62)";
+      rctx.font = "600 26px 'JetBrains Mono', monospace";
+      rctx.fillText(orbState.textContent || "AKTIV // LIVE", W / 2, 1140);
 
       rctx.fillStyle = "#ffffff";
-      rctx.font = "700 46px 'Space Grotesk', sans-serif";
+      rctx.font = "700 56px 'Space Grotesk', sans-serif";
       const titleTxt = (activeTrack ? activeTrack.title : "QUANTENBEATZ").toUpperCase();
-      rctx.fillText(titleTxt, W / 2, 910, W - 120);
+      rctx.fillText(titleTxt, W / 2, 1228, W - 120);
 
-      rctx.fillStyle = "rgba(255,255,255,0.58)";
-      rctx.font = "500 22px 'JetBrains Mono', monospace";
+      rctx.fillStyle = "rgba(255,255,255,0.62)";
+      rctx.font = "500 25px 'JetBrains Mono', monospace";
       const metaTxt = activeTrack ? `${activeTrack.genre} · ${activeTrack.bpm} BPM · ${activeTrack.key}`.toUpperCase() : "";
-      rctx.fillText(metaTxt, W / 2, 962, W - 120);
+      rctx.fillText(metaTxt, W / 2, 1288, W - 120);
 
-      // Live Waveform Scrubber
-      rctx.drawImage(waveCanvas, 90, 1025, W - 180, 128);
+      // Live Waveform Scrubber (2x Retina source -> razor sharp)
+      rctx.drawImage(waveCanvas, 80, 1365, W - 160, 140);
 
-      // Crisp Brand Footer with Link
-      rctx.strokeStyle = "rgba(255,255,255,0.16)";
-      rctx.lineWidth = 1.5;
-      rctx.beginPath(); rctx.moveTo(140, 1208); rctx.lineTo(W - 140, 1208); rctx.stroke();
+      // Crisp Brand Footer with Link (above 218px Reels/Shorts bottom safe-zone)
+      rctx.strokeStyle = "rgba(255,255,255,0.18)";
+      rctx.lineWidth = 2;
+      rctx.beginPath(); rctx.moveTo(140, 1585); rctx.lineTo(W - 140, 1585); rctx.stroke();
 
       rctx.fillStyle = "#ffffff";
-      rctx.font = "600 30px 'JetBrains Mono', monospace";
-      rctx.fillText("quantenbeatz.com", W / 2, 1256);
+      rctx.font = "700 38px 'JetBrains Mono', monospace";
+      rctx.fillText("quantenbeatz.com", W / 2, 1654);
 
-      rctx.fillStyle = "rgba(255,255,255,0.48)";
-      rctx.font = "500 19px 'JetBrains Mono', monospace";
-      rctx.fillText("FREE SOUND LIBRARY · @QUANTENBEATZ · CC BY 4.0", W / 2, 1294);
+      rctx.fillStyle = "rgba(255,255,255,0.52)";
+      rctx.font = "500 22px 'JetBrains Mono', monospace";
+      rctx.fillText("FREE SOUND LIBRARY · @QUANTENBEATZ · CC BY 4.0", W / 2, 1702);
 
       // Smooth Visual Fade-In (0.6s) & Fade-Out (1.1s)
       const elapsed = Math.max(0, (performance.now() - recStartMs) / 1000);
@@ -881,16 +882,11 @@
       rot += 0.004 + bass * 0.012;
 
       const r0 = (152 + bass * 18) * sc;
-      // Subtle radial glow
-      const grd = octx.createRadialGradient(cx, cy, r0 * 0.4, cx, cy, r0 * 1.9);
-      grd.addColorStop(0, `rgba(255,255,255,${(0.06 + bass * 0.14).toFixed(3)})`);
-      grd.addColorStop(1, "rgba(255,255,255,0)");
-      octx.fillStyle = grd;
-      octx.beginPath(); octx.arc(cx, cy, r0 * 1.9, 0, Math.PI * 2); octx.fill();
+      // Pure black interior (no muddy grey radial halo that causes 8-bit H.264 banding)
 
       // Main ring (clean inner space for logo, no inner crescent arcs)
-      octx.strokeStyle = `rgba(255,255,255,${(0.45 + bass * 0.55).toFixed(3)})`;
-      octx.lineWidth = 2.5 * sc;
+      octx.strokeStyle = `rgba(255,255,255,${(0.55 + bass * 0.45).toFixed(3)})`;
+      octx.lineWidth = 2.8 * sc;
       octx.beginPath(); octx.arc(cx, cy, r0, 0, Math.PI * 2); octx.stroke();
 
       // 96 radial needles (idle breath or real live FFT)
