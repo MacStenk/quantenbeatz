@@ -97,13 +97,14 @@
     }
     #orbCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
     .orb-core {
-      position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px;
+      position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: transform .25s ease;
     }
-    .orb-wrap:hover .orb-core { transform: scale(1.04); }
-    .orb-core img { width: 92px; height: auto; mix-blend-mode: screen; pointer-events: none; }
+    .orb-wrap:hover .orb-core { transform: scale(1.05); }
+    .orb-core img { width: 104px; height: auto; pointer-events: none; filter: drop-shadow(0 0 14px rgba(255,255,255,0.22)); }
     .orb-state {
-      font-family: var(--mono); font-size: 10px; letter-spacing: 3.5px; color: var(--fg-dim);
+      display: inline-block; margin-top: 2px; margin-bottom: 10px;
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: 3.5px; color: var(--fg-dim);
       text-transform: uppercase;
     }
 
@@ -241,9 +242,9 @@
           <canvas id="orbCanvas" width="720" height="720"></canvas>
           <div class="orb-core">
             <img src="qb-logo.png" alt="qb">
-            <span class="orb-state" id="orbState">INIT // SELECT</span>
           </div>
         </div>
+        <span class="orb-state" id="orbState">INIT // SELECT</span>
 
         <div class="deck" id="deck">
           <h1 class="deck-title" id="deckTitle">—</h1>
